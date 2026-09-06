@@ -3,7 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Little Journey — the story of how you began</title>
+<title>Baby Chronicles — the story of how you began</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#FAF4E8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Baby Chronicles">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -261,7 +269,7 @@ const RENDER={};
 const OB={step:1,role:"mother",start:"new"};
 RENDER.ob1=()=>{$("#nav").style.display="none";$("#app").innerHTML=`
  <div class="screen" style="padding-top:70px">
-  <div class="eyebrow">Little Journey</div>
+  <div class="eyebrow">Baby Chronicles</div>
   <h1 class="h-display">Every child deserves<br>to know <em>how loved</em><br>they were, before.</h1>
   <p class="lede">Capture the notes, photos, scans and small moments of pregnancy and the first year - and watch them become a story worth keeping forever.</p>
   <div class="card">
@@ -554,7 +562,7 @@ RENDER.story=()=>{nav("story");const p=S.d.profile,w=curWeek()||0,st=stage();
   ch.push({n:4,title:"And then, you",txt:`${name[0].toUpperCase()+name.slice(1)} arrived${p.birthDate?" on "+fmt(p.birthDate):""}, and the story changed tense - from waiting, to watching. ${ms.length?ms.length+" moments already, and the year is young.":"Every first is still ahead of you."}`,pics:ms.filter(m=>m.dataURL).slice(0,4),shareKey:"fy"})}
  $("#app").innerHTML=`
  <div class="screen story">
-  <div class="kicker">Little Journey presents</div>
+  <div class="kicker">Baby Chronicles presents</div>
   <h1>The story<br>of <em>${name}</em></h1>
   <p style="color:#8A8172;font-size:.85rem;margin-top:16px">Written from ${pub.length} captured moment${pub.length===1?"":"s"} · updated every time you add one</p>
   <button class="btn btn-terra mt" style="background:var(--gold);color:var(--ink)" onclick="playFilm()">▶ Play as a film</button>
@@ -696,7 +704,7 @@ RENDER.support=()=>{nav("more");$("#app").innerHTML=`
 RENDER.more=()=>{nav("more");const p=S.d.profile;
  $("#app").innerHTML=`
  <div class="screen" style="padding-top:38px">
-  <div class="eyebrow">Little Journey</div>
+  <div class="eyebrow">Baby Chronicles</div>
   <h1 class="h-display" style="font-size:1.6rem">${esc(p.name)} &amp; ${esc(p.babyName)}</h1>
   <div class="card">
    ${[["vault","🔒","Medical vault","PIN-locked, never shared"],["letters","💌","Letters to the baby","Sealed until their day"],["circle","👪","Family circle","Per-chapter, invite-only"],["reminders","🗓","Reminders",S.d.settings.paused?"Paused":"On, gently"],["keepsake","🎞","The keepsake","Film & book for the first birthday"]].map(([k,i,t,s])=>`
@@ -707,11 +715,12 @@ RENDER.more=()=>{nav("more");const p=S.d.profile;
    <div class="listrow" onclick="go('care')"><div class="ic">🕊</div><div><b>Something has changed</b><span class="go" style="font-size:.72rem;color:var(--ink2)">gently ›</span></div></div>
    <div class="listrow" onclick="if(confirm('Erase everything on this device?'))S.reset()"><div class="ic">🧺</div><div><b style="color:#A4442C">Erase this story</b><small>Deletes all data on this device</small></div></div>
   </div>
-  <p style="text-align:center;font-size:.68rem;color:var(--ink2);margin-top:20px;line-height:1.6">Little Journey · your data lives on this device<br>guidance basis: NHS week-by-week &amp; American Pregnancy Association</p>
+  <p style="text-align:center;font-size:.68rem;color:var(--ink2);margin-top:20px;line-height:1.6">Baby Chronicles · your data lives on this device<br>guidance basis: NHS week-by-week &amp; American Pregnancy Association</p>
  </div>`};
 window.exportAll=()=>{const blob=new Blob([JSON.stringify(S.d,null,2)],{type:"application/json"});
  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="little-journey-export.json";a.click();toast("Everything, in your hands")};
 /* ============ BOOT ============ */
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 if(S.d.settings&&S.d.settings.care)document.body.classList.add("care");
 S.d.profile?go('today'):go('ob1');
 </script>

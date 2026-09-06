@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.vercel.babychronicles",
+    "sha256_cert_fingerprints": ["D9:D7:8F:26:03:C2:5E:C8:17:8B:7C:86:43:93:BE:87:D7:EA:61:6B:42:99:BA:2E:37:FD:49:84:18:B2:AA:74"]
+  }
+}]

@@ -1,0 +1,16 @@
+{
+  "name": "Baby Chronicles - the story of how you began",
+  "short_name": "Baby Chronicles",
+  "description": "A keepsake, not a tracker. Capture the notes, photos, scans and small moments of pregnancy and the first year - and watch them become a story worth keeping forever.",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF4E8",
+  "theme_color": "#FAF4E8",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
