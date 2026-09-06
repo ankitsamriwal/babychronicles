@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Little Journey — the story of how you began</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FAF4E8; --cream2:#F3EAD9; --paper:#FFFDF8; --ink:#2E2A24; --ink2:#6B6357;
+  --terra:#C4673F; --terra-soft:#E8C4AE; --sage:#7E9274; --sage-soft:#DDE5D6;
+  --gold:#C89B5A; --rose:#C98A7A; --line:rgba(46,42,36,.12);
+  --serif:'Fraunces',Georgia,serif; --sans:'Inter',-apple-system,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{background:#E9E0CF;font-family:var(--sans);color:var(--ink);min-height:100vh;display:flex;justify-content:center}
+body.care{--terra:#7E9274;--terra-soft:#DDE5D6;--cream:#F2F4EC;--cream2:#E7EBDD;--rose:#9BAF92}
+#phone{width:100%;max-width:430px;min-height:100vh;background:var(--cream);position:relative;box-shadow:0 0 60px rgba(46,42,36,.25);overflow:hidden}
+@media(min-width:500px){#phone{margin:24px 0;border-radius:36px;min-height:calc(100vh - 48px)}}
+.screen{padding:24px 22px 110px;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h1,h2,h3,.serif{font-family:var(--serif)}
+.eyebrow{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--terra);font-weight:600;margin-bottom:8px}
+body.care .eyebrow{color:var(--sage)}
+.h-display{font-size:2rem;font-weight:400;line-height:1.15}
+.h-display em{font-style:italic;color:var(--terra)}
+.lede{color:var(--ink2);font-size:.95rem;line-height:1.6;margin-top:12px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:20px;margin-top:16px}
+.card.dark{background:var(--ink);color:var(--cream);border:none}
+.btn{display:block;width:100%;padding:16px;border-radius:999px;border:none;font-family:var(--sans);font-size:.95rem;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;transition:transform .12s ease}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--ink);color:var(--cream)}
+.btn-terra{background:var(--terra);color:#fff}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn-row{display:flex;gap:10px;margin-top:22px}
+.btn-row .btn{margin:0}
+.mt{margin-top:22px}
+input[type=text],input[type=date],input[type=password],input[type=number],textarea,select{
+  width:100%;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:var(--paper);
+  font-family:var(--sans);font-size:.95rem;color:var(--ink);margin-top:8px}
+textarea{min-height:110px;resize:vertical;line-height:1.55}
+label.f{display:block;font-size:.78rem;font-weight:600;color:var(--ink2);margin-top:18px;letter-spacing:.02em}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-size:.85rem;cursor:pointer;color:var(--ink)}
+.chip.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.chip.terra.on{background:var(--terra);border-color:var(--terra);color:#fff}
+/* bottom nav */
+#nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;
+  background:rgba(255,253,248,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);
+  display:flex;justify-content:space-around;padding:10px 6px calc(10px + env(safe-area-inset-bottom));z-index:50}
+#nav button{background:none;border:none;font-size:.62rem;color:var(--ink2);display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;font-family:var(--sans);font-weight:500}
+#nav button.on{color:var(--terra)}
+#nav button svg{width:22px;height:22px}
+#nav .fab{width:52px;height:52px;border-radius:50%;background:var(--terra);color:#fff;font-size:1.5rem;margin-top:-26px;box-shadow:0 8px 20px rgba(196,103,63,.4);display:flex;align-items:center;justify-content:center;border:3px solid var(--cream)}
+body.care #nav .fab{background:var(--sage);box-shadow:0 8px 20px rgba(126,146,116,.4)}
+/* hero */
+.hero{position:relative;border-radius:26px;background:linear-gradient(160deg,#FFF8EA,#F6E7CF);border:1px solid var(--line);padding:26px 24px;overflow:hidden;margin-top:14px}
+.hero .ringwrap{position:absolute;right:18px;top:18px}
+.ring{transform:rotate(-90deg)}
+.ring .bg{stroke:var(--cream2)}
+.ring .fg{stroke:var(--terra);stroke-linecap:round;transition:stroke-dashoffset 1s ease}
+body.care .ring .fg{stroke:var(--sage)}
+.sizeviz{font-family:var(--serif);font-size:3.2rem;line-height:1;margin:14px 0 4px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.tile{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:18px 16px;cursor:pointer;text-align:left;transition:transform .12s ease}
+.tile:active{transform:scale(.97)}
+.tile .ic{width:38px;height:38px;border-radius:12px;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:10px}
+.tile b{display:block;font-size:.9rem}
+.tile span{font-size:.72rem;color:var(--ink2);line-height:1.4;display:block;margin-top:3px}
+.tile.locked .ic{background:var(--ink);color:var(--gold)}
+.moment{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+.moment:last-child{border:none}
+.moment .thumb{width:56px;height:56px;border-radius:14px;background:var(--cream2);flex:none;display:flex;align-items:center;justify-content:center;font-size:1.3rem;overflow:hidden}
+.moment .thumb img{width:100%;height:100%;object-fit:cover}
+.moment .mm{min-width:0}
+.moment .mm b{font-size:.88rem;display:block}
+.moment .mm small{color:var(--ink2);font-size:.72rem}
+.moment .mm p{font-size:.8rem;color:var(--ink2);margin-top:3px;line-height:1.45;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.tag{display:inline-block;font-size:.62rem;padding:3px 9px;border-radius:999px;background:var(--sage-soft);color:#4E5F46;font-weight:600;margin-right:5px;letter-spacing:.04em}
+.tag.t{background:var(--terra-soft);color:#8A4526}
+.pillrow{display:flex;gap:6px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
+.pillrow::-webkit-scrollbar{display:none}
+.pill{flex:none;padding:9px 15px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-size:.8rem;cursor:pointer;color:var(--ink2)}
+.pill.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+/* timeline spine */
+.spine{position:relative;margin-top:10px;padding-left:26px}
+.spine:before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--terra-soft),var(--sage-soft))}
+.node{position:relative;padding:0 0 22px}
+.node:before{content:"";position:absolute;left:-24px;top:5px;width:12px;height:12px;border-radius:50%;background:var(--terra);border:3px solid var(--cream);box-shadow:0 0 0 1px var(--terra-soft)}
+.node .nd{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);font-weight:600}
+.node .nc{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-top:6px}
+.node .nc b{font-size:.88rem;font-family:var(--serif);font-weight:500}
+.node .nc p{font-size:.8rem;color:var(--ink2);margin-top:4px;line-height:1.5}
+/* story */
+.story{background:#171410;color:#EFE7D6;min-height:100vh;margin:-24px -22px -110px;padding:70px 30px 130px}
+.story .kicker{font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+.story h1{font-size:2.6rem;font-weight:300;line-height:1.1;margin-top:14px}
+.story h1 em{font-style:italic;color:var(--terra-soft)}
+.chapter{margin-top:56px}
+.chapter .cnum{font-family:var(--serif);font-size:.85rem;color:var(--gold);letter-spacing:.2em}
+.chapter h2{font-size:1.7rem;font-weight:400;margin-top:8px}
+.chapter p{font-size:.95rem;line-height:1.85;color:#CFC4AE;margin-top:14px;font-weight:300}
+.chapter .shots{display:flex;gap:10px;margin-top:18px;overflow-x:auto;scrollbar-width:none}
+.chapter .shots::-webkit-scrollbar{display:none}
+.chapter .shots img{height:150px;border-radius:14px;flex:none}
+.chapter .shots .ph{height:150px;width:110px;flex:none;border-radius:14px;background:#241F18;display:flex;align-items:center;justify-content:center;font-size:1.6rem}
+.divider{width:44px;height:1px;background:var(--gold);margin:46px auto 0;opacity:.6}
+.seg{display:flex;background:var(--cream2);border-radius:999px;padding:4px;margin-top:16px}
+.seg button{flex:1;border:none;background:none;padding:10px;border-radius:999px;font-size:.78rem;font-weight:600;color:var(--ink2);cursor:pointer;font-family:var(--sans)}
+.seg button.on{background:var(--paper);color:var(--ink);box-shadow:0 2px 8px rgba(46,42,36,.1)}
+.listrow{display:flex;align-items:center;gap:14px;padding:16px 2px;border-bottom:1px solid var(--line);cursor:pointer}
+.listrow:last-child{border:none}
+.listrow .ic{width:40px;height:40px;border-radius:12px;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex:none}
+.listrow b{font-size:.9rem;display:block}
+.listrow small{color:var(--ink2);font-size:.72rem}
+.listrow .go{margin-left:auto;color:var(--ink2)}
+.switch{margin-left:auto;width:46px;height:26px;border-radius:999px;background:var(--cream2);position:relative;flex:none;transition:background .2s}
+.switch.on{background:var(--sage)}
+.switch:after{content:"";position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.switch.on:after{left:23px}
+.notice{background:var(--sage-soft);border-radius:14px;padding:14px 16px;font-size:.78rem;line-height:1.55;color:#43513C;margin-top:16px}
+.notice b{display:block;margin-bottom:2px}
+.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.pinrow{display:flex;gap:14px;justify-content:center;margin:26px 0}
+.pinrow .dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--ink2)}
+.pinrow .dot.f{background:var(--ink);border-color:var(--ink)}
+.pinpad{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:260px;margin:0 auto}
+.pinpad button{aspect-ratio:1;border-radius:50%;border:1px solid var(--line);background:var(--paper);font-size:1.3rem;font-family:var(--serif);cursor:pointer}
+.pinpad button:active{background:var(--cream2)}
+.bigsize{display:flex;align-items:flex-end;justify-content:center;height:130px;margin:10px 0}
+.letter{background:linear-gradient(150deg,#FFFDF6,#F8EFDD);border:1px solid var(--line);border-radius:20px;padding:24px;position:relative;margin-top:16px}
+.letter .wax{width:44px;height:44px;border-radius:50%;background:var(--terra);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:1.1rem;position:absolute;top:-14px;right:22px;box-shadow:0 4px 12px rgba(196,103,63,.4)}
+.progressbar{height:6px;border-radius:99px;background:var(--cream2);overflow:hidden;margin-top:10px}
+.progressbar i{display:block;height:100%;background:var(--terra);border-radius:99px}
+body.care .progressbar i{background:var(--sage)}
+.moods{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.mood{font-size:1.4rem;padding:8px;border-radius:14px;border:1px solid transparent;cursor:pointer}
+.mood.on{border-color:var(--terra);background:var(--paper)}
+.toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--cream);padding:12px 22px;border-radius:999px;font-size:.82rem;z-index:99;animation:fade .3s;white-space:nowrap}
+.sharechip{font-size:.62rem;padding:4px 10px;border-radius:999px;border:1px solid var(--gold);color:var(--gold);letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.empty{text-align:center;padding:50px 20px;color:var(--ink2)}
+.empty .big{font-size:2.6rem;margin-bottom:10px}
+.empty p{font-size:.85rem;line-height:1.6;max-width:260px;margin:0 auto}
+.header{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.header .back{background:var(--paper);border:1px solid var(--line);width:38px;height:38px;border-radius:50%;font-size:1rem;cursor:pointer;flex:none;color:var(--ink)}
+.header h2{font-size:1.35rem;font-weight:500}
+</style>
+</head>
+<body>
+<div id="phone">
+  <div id="app"></div>
+  <nav id="nav" style="display:none"></nav>
+</div>
+<script>
+"use strict";
+/* ============ DATA: week-by-week (basis: NHS week-by-week guide & APA 40-week model; see disclaimer in Guidance) ============ */
+const WEEKS=[
+null,null,null,null,
+["poppy seed","The cells that will become the baby are dividing and the placenta is beginning to form.","This is usually the week a missed period makes you wonder. A home test can already show a result."],
+["sesame seed","The neural tube - which becomes the brain and spinal cord - is forming.","Folic acid matters most right now. 400 micrograms daily is the standard advice."],
+["lentil","The heart has started to beat. Tiny buds appear that will become arms and legs.","Early pregnancy tiredness is real and hormonally driven. Rest is not laziness."],
+["blueberry","Fingers and toes are beginning to form. The embryo is about 10,000 times bigger than at conception.","Nausea often peaks around now. Small, frequent snacks and ginger help many people."],
+["raspberry","The face is taking shape - eyes, nostrils, a mouth. Internal organs are growing fast.","Time to book your first midwife or doctor appointment if you haven't."],
+["cherry","Ears, teeth and the palate are forming. The baby can make small movements, though you can't feel them yet.","Some foods move to the avoid list: unpasteurised cheese, raw eggs, high-mercury fish."],
+["strawberry","All essential organs exist. The baby is officially called a fetus from around now.","Your blood volume is rising, which is why you may feel warmer and thirstier."],
+["lime","The baby is moving constantly now, even though you still can't feel it.","The dating scan is usually offered around weeks 11-14 - the first time you may see the baby."],
+["plum","The baby can open and close its fists. Reflexes are developing.","If you've had the scan, this is often when the secret starts to feel real."],
+["lemon","Tiny nails are forming on fingers and toes. The baby is fully formed in miniature.","Many people start sharing the news now, as the highest-risk window passes."],
+["peach","The baby is kicking and stretching. You might feel flutters soon, especially if this isn't your first.","Appetite often returns as nausea eases. Protein, iron and calcium are the priorities."],
+["apple","The baby can suck its thumb. The intestines, which were in the cord, move into the abdomen.","Energy often comes back around now - the famous second-trimester lift."],
+["avocado","The baby is starting to produce urine and swallow amniotic fluid.","Round-ligament pain - a stitch-like ache on one side - is common and usually harmless."],
+["pear","The baby can squint, frown and grimace. Fine hair (lanugo) covers the body.","Feeling the first movements - 'quickening' - often happens between weeks 16 and 20."],
+["bell pepper","The baby is practicing breathing movements. The ears are nearly in their final position.","The anatomy scan, usually around week 20, checks the baby's development in detail."],
+["mango","Vernix, a creamy protective coating, covers the baby's skin. The senses are developing.","Writing down the first kicks is worth it - the dates blur later."],
+["banana","The baby is putting on fat and can probably hear muffled sounds from outside.","Talking, singing and reading to the bump genuinely registers now."],
+["carrot","The baby's hearing is improving. Loud noises can startle them.","Sleeping on your side from around the third trimester is the standard advice."],
+["papaya","A regular sleep-wake pattern is emerging. The kicks are unmistakable now.","Track patterns, not counts-by-the-hour - you'll learn your baby's normal."],
+["grapefruit","Eyebrows and eyelashes are visible. The baby weighs about a pound.","Heartburn is common - small meals and an extra pillow at night help."],
+["ear of corn","The baby's eyes can open. The lungs are practicing but aren't ready yet.","The whooping cough vaccine is recommended in pregnancy - usually from week 16 to 32."],
+["head of lettuce","The brain is growing rapidly. The baby grips the umbilical cord sometimes.","Braxton Hicks - practice tightenings - can start now. They should ease with rest."],
+["spring onion","Buds for adult teeth are forming. The baby is listening and can recognise voices.","This is a good week to start a shortlist of names and see how they feel out loud."],
+["aubergine","The lungs are developing surfactant, which they will need to breathe air.","Baby hiccups feel like tiny rhythmic pulses - completely normal."],
+["coconut","The nostrils are opening. The baby has a firm grasp.","Start thinking about the birth preferences sheet - a page, not a novel."],
+["butternut squash","The spine has around 1,000 ligaments now. The baby can recognise your voice at birth.","Antenatal classes usually start around weeks 30-32 - worth booking early."],
+["cabbage","The baby is dreaming - REM sleep has been measured. The brain is very active.","Kicks should feel strong and regular. Any reduction in movement is a call to your midwife, always."],
+["pineapple","The baby can turn towards light. Eyes can open and close.","Pack ideas for the hospital bag around now - it removes one whole category of worry."],
+["coconut palm melon","The bones are fully formed but still soft. Space in there is getting tight.","Practice contractions may get stronger. Timing them teaches you the difference."],
+["honeydew","The baby can process more information and respond to sounds with movement.","Colostrum - the first milk - may start to leak. Normal, and a sign the body is preparing."],
+["cantaloupe","Most babies have moved head-down by now, or soon will.","The birth partner bag matters too: snacks, chargers, a change of clothes."],
+["romaine lettuce","The central nervous system and lungs are maturing fast.","Slow down in earnest now. The to-do list can genuinely wait."],
+["bunch of celery","The baby is gaining about an ounce a day. Fat is rounding out the cheeks.","Keep the hospital route and the petrol tank sorted. Do a dry run."],
+["small pumpkin","The baby's kidneys are fully developed. The liver can process some waste.","Wash the tiny clothes. It makes the whole thing feel beautifully real."],
+["watermelon","The baby is considered full-term from week 39. Mostly now, they wait with you.","Any time now means any time in the next few weeks. Rest while you can."],
+["small watermelon","Full term. The baby is ready - and so, somehow, are you.","Trust the patterns you know: movements, your body, and your midwife's number."],
+["newborn","The longest wait. The baby is fully cooked and simply choosing their moment.","One day very soon, this whole page becomes the first chapter of their story."]
+];
+const POSTNATAL=[
+["Week 1","A brand new person, learning the sound of your voice as home."],
+["Week 2","Feeding, sleeping, and the smallest fingers you'll ever hold."],
+["Week 4","The first social smiles usually arrive around now."],
+["Week 6","The six-week check for mother and baby - a milestone of its own."],
+["Week 8","First vaccinations, and a baby who is starting to coo."],
+["Week 12","Head control is coming. The days start to find a rhythm."],
+["Month 4","Rolling soon. The world becomes fascinating to stare at."],
+["Month 6","First tastes of food. Everything goes in the mouth."],
+["Month 9","Crawling, cruising, and separation anxiety - they know exactly who you are."],
+["Month 12","One whole year. The story so far becomes the keepsake."]
+];
+const MILESTONES=["First positive test","Telling our families","First scan","Hearing the heartbeat","First kick","Anatomy scan","Finding out (or deciding not to)","Choosing the name","Setting up the nursery","Baby shower","The hospital bag, packed","First breath","First smile","First laugh","First food","First tooth","First steps"];
+const MOODS=["🥹","😊","🤢","😴","😰","🥰","😤","🤔"];
+const PROMPTS=["How are you feeling in your body today?","What are you most looking forward to?","What surprised you this week?","What do you want the baby to know?","What did you crave today?","What's one thing you're proud of?"];
+const SCAN_HINTS={scan:["scan","usg","ultrasound","sono"],report:["report","blood","lab","cbc","test","glucose"],prescription:["rx","presc","med"]};
+const LS="lj_v1";
+const S={
+  d:null,
+  load(){try{this.d=JSON.parse(localStorage.getItem(LS))}catch(e){this.d=null}
+    if(!this.d)this.d={profile:null,moments:[],letters:[],vaultPin:null,reminders:[],settings:{paused:false,care:false},circle:[],share:{t1:false,t2:false,t3:false,fy:false},seen:{}};
+  },
+  save(){try{localStorage.setItem(LS,JSON.stringify(this.d))}catch(e){}},
+  reset(){localStorage.removeItem(LS);location.reload()}
+};
+S.load();
+const $=s=>document.querySelector(s);
+const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt=d=>new Date(d).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const weeksBetween=(a,b)=>Math.floor((new Date(b)-new Date(a))/(7*864e5));
+function conception(){const p=S.d.profile;return addDays(p.dueDate,-280)}
+function curWeek(){const p=S.d.profile;
+  if(p.startPoint==="baby")return null;
+  const w=weeksBetween(conception(),new Date())+1;return Math.min(Math.max(w,1),42)}
+function babyAge(){const p=S.d.profile;if(!p.birthDate)return null;
+  const w=weeksBetween(p.birthDate,new Date());
+  if(w<1)return"Welcome to the world";if(w<4)return"Week "+w;
+  const m=Math.floor(w/4.345);return m<1?"Week "+w:"Month "+m}
+function stage(){const p=S.d.profile;return p.startPoint==="baby"?"post":(curWeek()>=40?"due":"preg")}
+function trimesterOf(w){return w<=13?1:w<=27?2:3}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2400)}
+function hash(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return" h"+h}
+/* ============ ROUTER & NAV ============ */
+const NAV=[
+ ["today","Today",'<path d="M3 11l9-8 9 8v9a2 2 0 0 1-2 2h-4v-7h-6v7H5a2 2 0 0 1-2-2z"/>'],
+ ["timeline","Timeline",'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>'],
+ ["capture","",'+'],
+ ["story","Story",'<path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16l-4-3-4 3-4-3-4 3z"/>'],
+ ["more","More",'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>']];
+function nav(cur){
+ $("#nav").innerHTML=NAV.map(([k,l,svg])=>k==="capture"
+  ?`<button onclick="go('capture')"><span class="fab">+</span></button>`
+  :`<button class="${cur===k?'on':''}" onclick="go('${k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${svg}</svg>${l}</button>`).join("");
+ $("#nav").style.display="flex";
+}
+function go(s,...a){RENDER[s]?RENDER[s](...a):RENDER.today();window.scrollTo(0,0)}
+const RENDER={};
+/* ============ ONBOARDING ============ */
+const OB={step:1,role:"mother",start:"new"};
+RENDER.ob1=()=>{$("#nav").style.display="none";$("#app").innerHTML=`
+ <div class="screen" style="padding-top:70px">
+  <div class="eyebrow">Little Journey</div>
+  <h1 class="h-display">Every child deserves<br>to know <em>how loved</em><br>they were, before.</h1>
+  <p class="lede">Capture the notes, photos, scans and small moments of pregnancy and the first year - and watch them become a story worth keeping forever.</p>
+  <div class="card">
+   <b class="serif" style="font-size:1rem">Our privacy promise</b>
+   <p style="font-size:.82rem;color:var(--ink2);line-height:1.6;margin-top:8px">Everything you capture lives <b>on this device</b>. Nothing is uploaded, sold or shared. Medical documents stay behind your own lock. You can export or erase it all, any time, in one tap.</p>
+  </div>
+  <div class="btn-row"><button class="btn btn-terra" onclick="go('ob2')">Begin our story</button></div>
+ </div>`};
+RENDER.ob2=()=>{$("#app").innerHTML=`
+ <div class="screen" style="padding-top:48px">
+  <div class="header"><button class="back" onclick="go('ob1')">‹</button><h2>A little about you</h2></div>
+  <label class="f">I am the</label>
+  <div class="chips" id="roleChips">${["mother","partner","grandparent"].map(r=>`<button class="chip ${OB.role===r?'on':''}" onclick="OB.role='${r}';go('ob2')">${r[0].toUpperCase()+r.slice(1)}</button>`).join("")}</div>
+  <label class="f">Where does your story start?</label>
+  <div class="chips">
+   <button class="chip ${OB.start==='new'?'on':''}" onclick="OB.start='new';go('ob2')">Just found out</button>
+   <button class="chip ${OB.start==='mid'?'on':''}" onclick="OB.start='mid';go('ob2')">Mid-pregnancy</button>
+   <button class="chip ${OB.start==='baby'?'on':''}" onclick="OB.start='baby';go('ob2')">Baby is here</button>
+  </div>
+  <label class="f">Your first name</label>
+  <input type="text" id="obName" placeholder="e.g. Aisha" value="${esc(OB.name||'')}">
+  <div class="btn-row"><button class="btn btn-primary" onclick="ob2next()">Continue</button></div>
+ </div>`};
+window.ob2next=()=>{OB.name=$("#obName").value.trim();go('ob3')};
+RENDER.ob3=()=>{const baby=OB.start==="baby";$("#app").innerHTML=`
+ <div class="screen" style="padding-top:48px">
+  <div class="header"><button class="back" onclick="go('ob2')">‹</button><h2>${baby?"When was the baby born?":"When is the baby due?"}</h2></div>
+  <p class="lede">${baby?"We will build the story backwards from their birthday - and everything new joins it.":"This powers your week-by-week story, guidance and reminders. You can change it any time."}</p>
+  <label class="f">${baby?"Date of birth":"Due date"}</label>
+  <input type="date" id="obDate" value="${baby?'':new Date(Date.now()+180*864e5).toISOString().slice(0,10)}">
+  ${baby?'<label class="f">Original due date (optional, for the pregnancy arc)</label><input type="date" id="obDue">':''}
+  <label class="f">Baby's name or nickname (optional)</label>
+  <input type="text" id="obBaby" placeholder="You can decide later">
+  <div class="btn-row"><button class="btn btn-primary" onclick="ob3next(${baby})">Continue</button></div>
+ </div>`};
+window.ob3next=baby=>{const d=$("#obDate").value;if(!d)return toast("Pick a date to continue");
+ OB.date=d;OB.due=$("#obDue")?$("#obDue").value:"";OB.baby=$("#obBaby").value.trim();go('ob4')};
+RENDER.ob4=()=>{$("#app").innerHTML=`
+ <div class="screen" style="padding-top:48px">
+  <div class="header"><button class="back" onclick="go('ob3')">‹</button><h2>Grow the circle</h2></div>
+  <div class="card">
+   <div class="listrow" onclick="toast('Invites send from the live app - noted for launch')">
+    <div class="ic">💌</div><div><b>Invite your partner</b><small>Co-author the story, write sealed letters to the baby</small></div><span class="go">›</span></div>
+   <div class="listrow" onclick="toast('Family sharing is per-chapter and always invite-only')">
+    <div class="ic">👪</div><div><b>Add the family circle</b><small>Grandparents see only what you choose</small></div><span class="go">›</span></div>
+  </div>
+  <label class="f">Gentle reminders</label>
+  <div class="chips" id="remChips">${["Appointments","Week chapters","Bump photos","Partner prompts"].map((r,i)=>`<button class="chip terra ${i<2?'on':''}" data-i="${i}" onclick="this.classList.toggle('on')">${r}</button>`).join("")}</div>
+  <div class="btn-row"><button class="btn btn-terra" onclick="obFinish()">Start the story</button></div>
+  <button class="btn btn-ghost mt" onclick="obFinish()">Skip for now</button>
+ </div>`};
+window.obFinish=()=>{
+ const baby=OB.start==="baby";
+ S.d.profile={role:OB.role,name:OB.name||"You",babyName:OB.baby||"little one",startPoint:OB.start,
+   dueDate:baby?(OB.due||addDays(OB.date,-7).toISOString().slice(0,10)):OB.date,
+   birthDate:baby?OB.date:null,createdAt:new Date().toISOString()};
+ seedReminders();S.save();go('today');toast("Your story has begun 🤍")};
+function seedReminders(){const p=S.d.profile,c=conception();
+ const mk=(w,t)=>S.d.reminders.push({id:uid(),title:t,date:addDays(c,(w-1)*7).toISOString().slice(0,10),week:w,done:false,auto:true});
+ if(stage()!=="post"){mk(8,"Booking appointment with your midwife");mk(12,"Dating scan window opens");mk(20,"Anatomy scan - the big one");mk(28,"Third trimester begins");mk(36,"Birth preferences & hospital bag");mk(40,"Due date - any time now");}
+ else S.d.reminders.push({id:uid(),title:"Six-week check for mother and baby",date:addDays(p.birthDate,42).toISOString().slice(0,10),week:null,done:false,auto:true});
+}
+/* ============ TODAY ============ */
+RENDER.today=()=>{nav("today");const p=S.d.profile,w=curWeek(),st=stage();
+ const ring=(pct)=>{const r=44,c=2*Math.PI*r;return`<div class="ringwrap"><svg class="ring" width="104" height="104"><circle class="bg" cx="52" cy="52" r="${r}" fill="none" stroke-width="7"/><circle class="fg" cx="52" cy="52" r="${r}" fill="none" stroke-width="7" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-pct)}"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><b class="serif" style="font-size:1.35rem">${st==="post"?"":w}</b><small style="font-size:.55rem;letter-spacing:.12em;color:var(--ink2)">${st==="post"?"":(st==="due"?"DUE":"OF 40")}</small></div></div>`};
+ const heroTitle=st==="post"?`${esc(p.babyName)} is here`:(st==="due"?"Any day now":`Week ${w}`);
+ const heroSub=st==="post"?babyAge()+" of being here":(st==="due"?"Full term and choosing their moment":"the size of a "+WEEKS[w][0]);
+ const recent=[...S.d.moments].filter(m=>!m.vault).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,3);
+ const nextRem=S.d.reminders.filter(r=>!r.done&&r.date>=new Date().toISOString().slice(0,10)).sort((a,b)=>a.date<b.date?-1:1)[0];
+ const g=st==="post"?null:WEEKS[Math.min(w,40)];
+ $("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="eyebrow">${new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})}</div>
+  <h1 class="h-display" style="font-size:1.6rem">Hello, ${esc(p.name)} 🤍</h1>
+  <div class="hero">
+   ${ring(st==="post"?1:Math.min(w/40,1))}
+   <div class="eyebrow" style="margin:0">${st==="post"?"The first year":"The pregnancy"}</div>
+   <h2 class="serif" style="font-size:1.9rem;font-weight:400;margin-top:6px">${heroTitle}</h2>
+   <p style="font-size:.85rem;color:var(--ink2);margin-top:4px">${heroSub}</p>
+   <div class="sizeviz">${st==="post"?"🍼":sizeEmoji(w)}</div>
+   ${g?`<p style="font-size:.8rem;color:var(--ink2);line-height:1.55;max-width:70%">${g[1].split(".")[0]}.</p>`:""}
+  </div>
+  <div class="tiles">
+   <button class="tile" onclick="go('capture')"><div class="ic">✏️</div><b>Capture a moment</b><span>Note, photo, scan or milestone</span></button>
+   <button class="tile" onclick="go('story')"><div class="ic">📖</div><b>The story so far</b><span>Watch your chapters grow</span></button>
+  </div>
+  ${g?`<div class="card" style="cursor:pointer" onclick="go('guidance')">
+    <div class="eyebrow" style="margin:0">This week · week ${w}</div>
+    <p style="font-size:.85rem;line-height:1.6;margin-top:6px">${g[2]}</p>
+    <small style="color:var(--terra);font-weight:600;font-size:.75rem">Read the week guide →</small></div>`:""}
+  ${nextRem?`<div class="card" style="display:flex;gap:14px;align-items:center;cursor:pointer" onclick="go('reminders')">
+    <div class="ic" style="width:40px;height:40px;border-radius:12px;background:var(--cream2);display:flex;align-items:center;justify-content:center">🗓</div>
+    <div><b style="font-size:.88rem">${esc(nextRem.title)}</b><br><small style="color:var(--ink2)">${fmt(nextRem.date)}</small></div></div>`:""}
+  <div class="card"><b class="serif">Recent moments</b>
+   ${recent.length?recent.map(m=>momentRow(m)).join(""):'<div class="empty" style="padding:26px"><div class="big">🌱</div><p>Your first moment will live here. Tap + when it happens.</p></div>'}
+  </div>
+ </div>`};
+function sizeEmoji(w){const e={4:"·",5:"•",6:"🫘",7:"🫐",8:"🍓",9:"🍒",10:"🍓",11:"🍋",12:"🍑",13:"🍋",14:"🍑",15:"🍎",16:"🥑",17:"🍐",18:"🫑",19:"🥭",20:"🍌",21:"🥕",22:"🥭",23:"🍈",24:"🌽",25:"🥬",26:"🥬",27:"🧅",28:"🥥",29:"🎃",30:"🥬",31:"🍍",32:"🍈",33:"🍈",34:"🍈",35:"🥬",36:"🥬",37:"🎃",38:"🍉",39:"🍉",40:"🍉",41:"🍉",42:"👶"};return e[w]||"🍉"}
+function momentRow(m){const ic={note:"✏️",photo:"📷",bump:"🤰",scan:"🩻",report:"📄",milestone:"⭐"}[m.type]||"✏️";
+ return`<div class="moment" onclick="go('moment','${m.id}')"><div class="thumb">${m.dataURL?`<img src="${m.dataURL}">`:ic}</div>
+ <div class="mm"><b>${esc(m.title)}</b><small>${fmt(m.date)}${m.week?" · week "+m.week:""}</small>${m.text?`<p>${esc(m.text)}</p>`:""}</div></div>`}
+/* ============ CAPTURE ============ */
+RENDER.capture=()=>{nav("capture");$("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="eyebrow">Capture</div>
+  <h1 class="h-display" style="font-size:1.7rem">What just happened?</h1>
+  <div class="tiles" style="grid-template-columns:1fr 1fr">
+   <button class="tile" onclick="go('capNote')"><div class="ic">✏️</div><b>Note</b><span>A thought, a feeling, a craving</span></button>
+   <button class="tile" onclick="go('capPhoto','photo')"><div class="ic">📷</div><b>Photo</b><span>Any moment worth keeping</span></button>
+   <button class="tile" onclick="go('capPhoto','bump')"><div class="ic">🤰</div><b>Bump photo</b><span>Watch the progression grow</span></button>
+   <button class="tile" onclick="go('capDoc','scan')"><div class="ic">🩻</div><b>Scan</b><span>Ultrasounds, auto-filed by week</span></button>
+   <button class="tile" onclick="go('capDoc','report')"><div class="ic">📄</div><b>Report</b><span>Blood work, prescriptions, letters</span></button>
+   <button class="tile locked" onclick="go('capMilestone')"><div class="ic">⭐</div><b>Milestone</b><span>First kick, first scan, first smile</span></button>
+  </div>
+  <div class="card" style="cursor:pointer" onclick="go('vault')">
+   <div style="display:flex;gap:14px;align-items:center"><div class="ic" style="width:42px;height:42px;border-radius:12px;background:var(--ink);color:var(--gold);display:flex;align-items:center;justify-content:center">🔒</div>
+   <div><b class="serif">Medical vault</b><br><small style="color:var(--ink2)">Private documents behind your own lock - never in the shared story</small></div></div>
+  </div>
+ </div>`};
+RENDER.capNote=()=>{$("#nav").style.display="none";$("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="go('capture')">‹</button><h2>A note for the story</h2></div>
+  <p class="lede" style="font-style:italic" id="prompt">${PROMPTS[Math.floor(Math.random()*PROMPTS.length)]}</p>
+  <input type="text" id="nTitle" placeholder="Give it a title (optional)">
+  <textarea id="nText" placeholder="Write it while it's fresh..."></textarea>
+  <label class="f">How are you feeling?</label>
+  <div class="moods" id="moodRow">${MOODS.map(m=>`<span class="mood" onclick="pickMood(this,'${m}')">${m}</span>`).join("")}</div>
+  <label class="f">When did this happen?</label>
+  <input type="date" id="nDate" value="${new Date().toISOString().slice(0,10)}">
+  <div class="btn-row"><button class="btn btn-ghost" onclick="go('capture')">Discard</button><button class="btn btn-terra" onclick="saveNote()">Keep it</button></div>
+ </div>`};
+let _mood=null;
+window.pickMood=(el,m)=>{document.querySelectorAll(".mood").forEach(x=>x.classList.remove("on"));el.classList.add("on");_mood=m};
+window.saveNote=()=>{const t=$("#nText").value.trim();if(!t)return toast("Write a line first 🤍");
+ S.d.moments.push({id:uid(),type:"note",date:$("#nDate").value,week:curWeek(),title:$("#nTitle").value.trim()||t.slice(0,42)+(t.length>42?"…":""),text:t,mood:_mood,vault:false});
+ S.save();_mood=null;go('today');toast("Kept, forever")};
+let _img=null;
+RENDER.capPhoto=type=>{$("#nav").style.display="none";_img=null;$("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="go('capture')">‹</button><h2>${type==="bump"?"Bump photo":"A photo for the story"}</h2></div>
+  <label class="btn btn-ghost mt" style="display:block;cursor:pointer">Choose photo<input type="file" id="pFile" accept="image/*" style="display:none" onchange="loadImg(this)"></label>
+  <div id="pPrev"></div>
+  <input type="text" id="pTitle" placeholder="${type==="bump"?"e.g. 24 weeks, feeling round":"Caption this moment"}">
+  <label class="f">Date</label><input type="date" id="pDate" value="${new Date().toISOString().slice(0,10)}">
+  ${type==="bump"?'<div class="notice"><b>The progression strip</b>Bump photos line up week by week on your trimester view - same spot, same light works best.</div>':""}
+  <div class="btn-row"><button class="btn btn-ghost" onclick="go('capture')">Discard</button><button class="btn btn-terra" onclick="savePhoto('${type}')">Keep it</button></div>
+ </div>`};
+window.loadImg=inp=>{const f=inp.files[0];if(!f)return;if(f.size>2.5e6)return toast("Photo is large - keep it under ~2.5MB for now");
+ const r=new FileReader();r.onload=e=>{_img=e.target.result;$("#pPrev").innerHTML=`<img src="${_img}" style="width:100%;border-radius:18px;margin-top:14px">`};r.readAsDataURL(f)};
+window.savePhoto=type=>{if(!_img)return toast("Choose a photo first");
+ S.d.moments.push({id:uid(),type,date:$("#pDate").value,week:curWeek(),title:$("#pTitle").value.trim()||(type==="bump"?"Bump, week "+(curWeek()||""):"A moment"),dataURL:_img,vault:false});
+ S.save();go('timeline');toast("Added to the story")};
+RENDER.capDoc=kind=>{$("#nav").style.display="none";_img=null;$("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="go('capture')">‹</button><h2>${kind==="scan"?"File a scan":"File a report"}</h2></div>
+  <label class="btn btn-ghost mt" style="display:block;cursor:pointer">Choose photo of the document<input type="file" id="dFile" accept="image/*" style="display:none" onchange="loadDoc(this,'${kind}')"></label>
+  <div id="dPrev"></div>
+  <div id="dForm" style="display:none">
+   <div class="notice"><b>Auto-classified on this device</b>We guessed the details below from the file - correct anything before filing. Nothing leaves your phone.</div>
+   <label class="f">Document type</label>
+   <div class="chips" id="dType">${(kind==="scan"?["Dating scan","Anatomy scan","Growth scan","Other scan"]:["Blood test","Glucose test","Prescription","Clinic letter","Other report"]).map((t,i)=>`<button class="chip ${i===0?'on':''}" onclick="this.parentNode.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));this.classList.add('on')">${t}</button>`).join("")}</div>
+   <label class="f">Week of pregnancy</label><input type="number" id="dWeek" value="${curWeek()||""}" min="1" max="42">
+   <label class="f">Clinic / hospital (optional)</label><input type="text" id="dClinic" placeholder="e.g. Mediclinic">
+   <label class="f">Notes (CRL, heart rate, findings...)</label><textarea id="dNotes" style="min-height:70px" placeholder="Anything the sonographer said"></textarea>
+   <div class="listrow" style="border:none;padding:14px 0"><div class="ic">🔒</div><div><b>Keep in the medical vault</b><small>Locked, never shown in the shared story</small></div><div class="switch on" id="dVault" onclick="this.classList.toggle('on')"></div></div>
+   <div class="btn-row"><button class="btn btn-ghost" onclick="go('capture')">Discard</button><button class="btn btn-terra" onclick="saveDoc('${kind}')">File it</button></div>
+  </div>
+ </div>`};
+window.loadDoc=(inp,kind)=>{const f=inp.files[0];if(!f)return;if(f.size>2.5e6)return toast("Keep document photos under ~2.5MB");
+ const r=new FileReader();r.onload=e=>{_img=e.target.result;
+  const n=f.name.toLowerCase();let guess=kind;
+  for(const[k,ws]of Object.entries(SCAN_HINTS))if(ws.some(w=>n.includes(w)))guess=k;
+  $("#dPrev").innerHTML=`<img src="${_img}" style="width:100%;border-radius:18px;margin-top:14px;max-height:260px;object-fit:cover">`;
+  $("#dForm").style.display="block";if(guess!==kind)toast("Looks like a "+guess+" - filed as "+kind)};
+ r.readAsDataURL(f)};
+window.saveDoc=kind=>{if(!_img)return toast("Choose the document photo first");
+ const type=$("#dType .chip.on").textContent;
+ S.d.moments.push({id:uid(),type:kind,date:new Date().toISOString().slice(0,10),week:parseInt($("#dWeek").value)||curWeek(),title:type,text:$("#dNotes").value.trim(),clinic:$("#dClinic").value.trim(),dataURL:_img,vault:$("#dVault").classList.contains("on")});
+ S.save();go($("#dVault").classList.contains("on")?'vault':'timeline');toast("Filed safely")};
+RENDER.capMilestone=()=>{$("#nav").style.display="none";$("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="go('capture')">‹</button><h2>A milestone</h2></div>
+  <div class="chips" id="msChips">${MILESTONES.map((m,i)=>`<button class="chip ${i===0?'on':''}" onclick="this.parentNode.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));this.classList.add('on')">${m}</button>`).join("")}</div>
+  <label class="f">Or write your own</label><input type="text" id="msCustom" placeholder="e.g. First time the baby kicked to music">
+  <label class="f">Date</label><input type="date" id="msDate" value="${new Date().toISOString().slice(0,10)}">
+  <div class="btn-row"><button class="btn btn-ghost" onclick="go('capture')">Discard</button><button class="btn btn-terra" onclick="saveMilestone()">Mark it</button></div>
+ </div>`};
+window.saveMilestone=()=>{const c=$("#msCustom").value.trim();const t=c||$("#msChips .chip.on").textContent;
+ S.d.moments.push({id:uid(),type:"milestone",date:$("#msDate").value,week:curWeek(),title:t,vault:false});
+ S.save();go('timeline');toast("⭐ Marked in the story")};
+RENDER.moment=id=>{const m=S.d.moments.find(x=>x.id===id);if(!m)return go('timeline');$("#nav").style.display="none";
+ $("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="history.length?go('timeline'):go('today')">‹</button><h2 class="serif" style="font-size:1.2rem">${esc(m.title)}</h2></div>
+  <p class="lede" style="margin-top:2px">${fmt(m.date)}${m.week?" · week "+m.week:""}${m.clinic?" · "+esc(m.clinic):""}</p>
+  ${m.dataURL?`<img src="${m.dataURL}" style="width:100%;border-radius:20px;margin-top:14px">`:""}
+  ${m.mood?`<div style="font-size:1.8rem;margin-top:14px">${m.mood}</div>`:""}
+  ${m.text?`<div class="card"><p style="font-size:.92rem;line-height:1.7;white-space:pre-wrap">${esc(m.text)}</p></div>`:""}
+  <div class="listrow" style="margin-top:10px"><div class="ic">🔒</div><div><b>Medical vault</b><small>${m.vault?"Locked - never in the shared story":"Visible in your story"}</small></div><div class="switch ${m.vault?'on':''}" onclick="toggleVault('${m.id}',this)"></div></div>
+  <button class="btn btn-ghost mt" style="color:#A4442C" onclick="delMoment('${m.id}')">Delete this moment</button>
+ </div>`};
+window.toggleVault=(id,el)=>{const m=S.d.moments.find(x=>x.id===id);m.vault=!m.vault;el.classList.toggle("on",m.vault);S.save()};
+window.delMoment=id=>{if(!confirm("Delete this moment? This can't be undone."))return;
+ S.d.moments=S.d.moments.filter(x=>x.id!==id);S.save();go('timeline');toast("Deleted")};
+/* ============ VAULT ============ */
+let _pin="";
+RENDER.vault=()=>{nav("more");
+ if(!S.d.vaultPin)return renderPinSet();
+ if(!RENDER._unlocked)return renderPinAsk();
+ const items=S.d.moments.filter(m=>m.vault);
+ $("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="RENDER._unlocked=false;go('more')">‹</button><h2 class="serif">🔒 Medical vault</h2></div>
+  <p class="lede">Locked on this device. Vault items appear as covers only - their contents never enter timelines, the story, or anything shared.</p>
+  ${items.length?items.map(m=>`<div class="listrow" onclick="go('moment','${m.id}')"><div class="ic">${m.type==="scan"?"🩻":"📄"}</div><div><b>${esc(m.title)}</b><small>${fmt(m.date)}${m.week?" · week "+m.week:""}</small></div><span class="go">›</span></div>`).join("")
+   :'<div class="empty"><div class="big">🗄</div><p>Nothing locked away yet. File a scan or report and toggle the vault switch.</p></div>'}
+  <button class="btn btn-ghost mt" onclick="RENDER._unlocked=false;go('vault')">Lock the vault</button>
+ </div>`};
+function renderPinSet(){$("#app").innerHTML=`
+ <div class="screen" style="padding-top:60px;text-align:center">
+  <div style="font-size:2.4rem">🔒</div><h2 class="serif mt" style="font-size:1.4rem">Set your vault PIN</h2>
+  <p class="lede" style="text-align:center">Four digits, stored only on this device.</p>
+  <div class="pinrow" id="dots">${pinDots()}</div>
+  <div class="pinpad">${pinPad("set")}</div></div>`}
+function renderPinAsk(){$("#app").innerHTML=`
+ <div class="screen" style="padding-top:60px;text-align:center">
+  <div style="font-size:2.4rem">🔒</div><h2 class="serif mt" style="font-size:1.4rem">Unlock the vault</h2>
+  <div class="pinrow" id="dots">${pinDots()}</div>
+  <div class="pinpad">${pinPad("ask")}</div></div>`}
+function pinDots(){return[0,1,2,3].map(i=>`<span class="dot ${i<_pin.length?'f':''}"></span>`).join("")}
+function pinPad(mode){return[1,2,3,4,5,6,7,8,9,"",0,"⌫"].map(n=>n===""?"<span></span>":`<button onclick="pinKey('${n}','${mode}')">${n}</button>`).join("")}
+window.pinKey=(k,mode)=>{if(k==="⌫")_pin=_pin.slice(0,-1);else if(_pin.length<4)_pin+=k;
+ $("#dots").innerHTML=pinDots();if(_pin.length<4)return;
+ if(mode==="set"){S.d.vaultPin=hash(_pin);S.save();RENDER._unlocked=true;_pin="";go('vault');toast("Vault PIN set")}
+ else{if(hash(_pin)===S.d.vaultPin){RENDER._unlocked=true;_pin="";go('vault')}
+  else{_pin="";$("#dots").innerHTML=pinDots();$("#dots").classList.add("shake");setTimeout(()=>$("#dots")&&$("#dots").classList.remove("shake"),450);toast("Not quite - try again")}}};
+/* ============ TIMELINE ============ */
+let _scale="Week";
+RENDER.timeline=()=>{nav("timeline");const pub=S.d.moments.filter(m=>!m.vault).sort((a,b)=>new Date(a.date)-new Date(b.date));
+ const p=S.d.profile,w=curWeek(),st=stage();
+ let body="";
+ const node=(date,title,txt,m)=>`<div class="node"><div class="nd">${date}</div><div class="nc"${m?` onclick="go('moment','${m.id}')" style="cursor:pointer"`:""}><b>${title}</b>${txt?`<p>${txt}</p>`:""}</div></div>`;
+ const cover=m=>`<div class="node"><div class="nd">${fmt(m.date)}</div><div class="nc"><b>${esc(m.title)}</b><p>${m.dataURL?`<img src="${m.dataURL}" style="width:100%;border-radius:12px;margin-top:8px;max-height:150px;object-fit:cover">`:""}${esc((m.text||"").slice(0,120))}</p></div></div>`;
+ if(_scale==="Day"){const by={};pub.forEach(m=>{(by[m.date]=by[m.date]||[]).push(m)});
+  body=Object.keys(by).sort().map(d=>node(fmt(d),by[d].length+" moment"+(by[d].length>1?"s":""),by[d].map(m=>esc(m.title)).join(" · "),by[d][0])).join("")||emptyTl()}
+ else if(_scale==="Week"){const by={};pub.forEach(m=>{const k=m.week||weeksBetween(conception(),m.date)+1;(by[k]=by[k]||[]).push(m)});
+  body=Object.keys(by).sort((a,b)=>a-b).map(k=>node("Week "+k,by[k].map(m=>esc(m.title)).join(" · "),by[k][0].text?esc(by[k][0].text.slice(0,100)):"",by[k][0])).join("")||emptyTl()}
+ else if(_scale==="Month"){const by={};pub.forEach(m=>{const k=m.date.slice(0,7);(by[k]=by[k]||[]).push(m)});
+  body=Object.keys(by).sort().map(k=>node(new Date(k+"-02").toLocaleDateString("en-GB",{month:"long",year:"numeric"}),by[k].length+" moment"+(by[k].length>1?"s":""),by[k].map(m=>esc(m.title)).join(" · "),by[k][0])).join("")||emptyTl()}
+ else if(_scale==="Trimester"){
+  const tNames=["","The first whispers","The golden months","The home straight"];
+  body=[1,2,3].map(t=>{const ms=pub.filter(m=>(m.week||0)>=(t===1?0:t===2?14:28)&&(m.week||0)<=(t===1?13:t===2?27:42));
+   const bumps=ms.filter(m=>m.type==="bump"&&m.dataURL);
+   return`<div class="node"><div class="nd">Trimester ${t}</div><div class="nc"><b>${tNames[t]}</b>
+    <p>${ms.length?[ms.length+" moment"+(ms.length>1?"s":""),...ms.filter(m=>m.type==="milestone").map(m=>esc(m.title))].join(" · "):"Not yet written"}</p>
+    ${bumps.length?`<div style="display:flex;gap:8px;margin-top:10px;overflow-x:auto">${bumps.map(b=>`<img src="${b.dataURL}" style="height:90px;border-radius:10px;flex:none">`).join("")}</div>`:""}
+   </div></div>`}).join("");
+  if(st==="post")body+=`<div class="node"><div class="nd">The first year</div><div class="nc"><b>And then, you</b><p>${pub.filter(m=>m.date>=(p.birthDate||"")).length} moments since ${esc(p.babyName)} arrived</p></div></div>`}
+ else{const c=conception(),end=p.birthDate?addDays(p.birthDate,365):addDays(c,280+365);
+  const span=weeksBetween(c,end),now=Math.min(Math.max(weeksBetween(c,new Date()),0),span);
+  body=`<div class="card" style="margin-top:6px"><b class="serif">Conception to first birthday</b>
+   <div class="progressbar"><i style="width:${Math.round(now/span*100)}%"></i></div>
+   <p style="font-size:.78rem;color:var(--ink2);margin-top:8px">${Math.round(now/span*100)}% of the arc · ${pub.length} moments captured</p></div>
+   <div class="spine">${node(fmt(c.toISOString()),"Where it began","The day everything quietly changed.")}
+   ${pub.slice(-4).map(cover).join("")}
+   ${node(fmt(end.toISOString()),"The first birthday","The story so far, bound and kept.")}</div>`}
+ $("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="eyebrow">Timeline</div>
+  <h1 class="h-display" style="font-size:1.7rem">One long, <em>beautiful</em> arc</h1>
+  <div class="pillrow">${["Day","Week","Month","Trimester","Year"].map(s=>`<button class="pill ${_scale===s?'on':''}" onclick="_scale='${s}';go('timeline')">${s}</button>`).join("")}</div>
+  <div class="spine">${body}</div>
+ </div>`};
+function emptyTl(){return`<div class="node"><div class="nc"><b>Nothing here yet</b><p>Captured moments will weave themselves into this view.</p></div></div>`}
+/* ============ STORY ============ */
+RENDER.story=()=>{nav("story");const p=S.d.profile,w=curWeek()||0,st=stage();
+ const pub=S.d.moments.filter(m=>!m.vault).sort((a,b)=>new Date(a.date)-new Date(b.date));
+ const name=esc(p.babyName),parent=esc(p.name);
+ const ch=[];
+ const tri=(t,title,range)=>{const ms=pub.filter(m=>{const mwk=m.week||weeksBetween(conception(),m.date)+1;return mwk>=range[0]&&mwk<=range[1]});
+  const mil=ms.filter(m=>m.type==="milestone"),notes=ms.filter(m=>m.type==="note"),pics=ms.filter(m=>m.dataURL);
+  const wk=WEEKS[Math.min(Math.max(range[1],4),40)];
+  let txt;
+  if(!ms.length&&w<range[0])txt="This chapter hasn't happened yet. It's waiting for you.";
+  else if(!ms.length)txt=`Weeks ${range[0]} to ${range[1]} - the baby grew to the size of a ${wk[0]}. The days were full, even if nothing was written down.`;
+  else txt=`Weeks ${range[0]} to ${range[1]}, and the baby grew to the size of a ${wk[0]}. ${mil.length?"You marked "+mil.map(m=>m.title.toLowerCase()).join(", ")+" - moments that only happen once. ":""}${notes.length?parent+" wrote it down while it was still fresh: \""+notes[notes.length-1].text.slice(0,90)+(notes[notes.length-1].text.length>90?"…":"")+"\"":""}`;
+  ch.push({n:t,title,txt,pics:pics.slice(0,4),shareKey:"t"+t})};
+ tri(1,"The first whispers",[1,13]);tri(2,"The golden months",[14,27]);tri(3,"The home straight",[28,42]);
+ if(st==="post"){const ms=pub.filter(m=>m.date>=(p.birthDate||"9999"));
+  ch.push({n:4,title:"And then, you",txt:`${name[0].toUpperCase()+name.slice(1)} arrived${p.birthDate?" on "+fmt(p.birthDate):""}, and the story changed tense - from waiting, to watching. ${ms.length?ms.length+" moments already, and the year is young.":"Every first is still ahead of you."}`,pics:ms.filter(m=>m.dataURL).slice(0,4),shareKey:"fy"})}
+ $("#app").innerHTML=`
+ <div class="screen story">
+  <div class="kicker">Little Journey presents</div>
+  <h1>The story<br>of <em>${name}</em></h1>
+  <p style="color:#8A8172;font-size:.85rem;margin-top:16px">Written from ${pub.length} captured moment${pub.length===1?"":"s"} · updated every time you add one</p>
+  <button class="btn btn-terra mt" style="background:var(--gold);color:var(--ink)" onclick="playFilm()">▶ Play as a film</button>
+  ${ch.map(c=>`<div class="chapter" id="ch${c.n}">
+   <div class="cnum">CHAPTER ${["ONE","TWO","THREE","FOUR"][c.n-1]} ${S.d.share[c.shareKey]?'<span class="sharechip">shared with circle</span>':""}</div>
+   <h2>${c.title}</h2><p>${c.txt}</p>
+   ${c.pics.length?`<div class="shots">${c.pics.map(x=>`<img src="${x.dataURL}">`).join("")}</div>`:""}
+   <div style="margin-top:14px;display:flex;gap:8px">
+    <button class="chip" style="background:transparent;color:var(--gold);border-color:rgba(200,155,90,.4)" onclick="toggleShare('${c.shareKey}',this)">${S.d.share[c.shareKey]?"Unshare chapter":"Share this chapter"}</button>
+   </div></div><div class="divider"></div>`).join("")}
+  <p style="text-align:center;color:#6B6357;font-size:.8rem;margin-top:40px;font-style:italic">…to be continued, one moment at a time.</p>
+ </div>`};
+window.toggleShare=(k,el)=>{S.d.share[k]=!S.d.share[k];S.save();
+ el.textContent=S.d.share[k]?"Unshare chapter":"Share this chapter";
+ toast(S.d.share[k]?"Shared with your circle (invite-only at launch)":"Back to just you")};
+window.playFilm=()=>{let y=0;const step=()=>{y+=1.2;window.scrollTo(0,y);if(y<document.body.scrollHeight)setTimeout(step,16)};step();toast("Sit back 🤍")};
+/* ============ GUIDANCE ============ */
+RENDER.guidance=(w)=>{nav("today");w=w||curWeek()||20;const g=WEEKS[Math.min(Math.max(w,4),40)];
+ $("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="go('today')">‹</button><h2 class="serif">Week ${w}</h2></div>
+  <div class="hero" style="text-align:center"><div class="bigsize"><span style="font-size:4.6rem">${sizeEmoji(w)}</span></div>
+   <p style="font-size:.85rem;color:var(--ink2)">About the size of a <b class="serif" style="color:var(--ink)">${g[0]}</b></p></div>
+  <div class="card"><div class="eyebrow" style="margin:0">The baby this week</div><p style="font-size:.92rem;line-height:1.7;margin-top:8px">${g[1]}</p></div>
+  <div class="card"><div class="eyebrow" style="margin:0">For you</div><p style="font-size:.92rem;line-height:1.7;margin-top:8px">${g[2]}</p></div>
+  <div class="btn-row">
+   ${w>4?`<button class="btn btn-ghost" onclick="go('guidance',${w-1})">← Week ${w-1}</button>`:""}
+   ${w<40?`<button class="btn btn-ghost" onclick="go('guidance',${w+1})">Week ${w+1} →</button>`:""}
+  </div>
+  <div class="notice"><b>A note, not advice</b>Guidance follows the NHS week-by-week pregnancy guide and the American Pregnancy Association's 40-week model. It is general information, not medical advice - your midwife and doctor know your pregnancy.</div>
+ </div>`};
+/* ============ REMINDERS ============ */
+RENDER.reminders=()=>{nav("more");const rs=[...S.d.reminders].sort((a,b)=>a.date<b.date?-1:1);
+ $("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="go('more')">‹</button><h2 class="serif">Reminders</h2></div>
+  <p class="lede">Seeded from your dates, nudged by events - never noisy.</p>
+  ${S.d.settings.paused?'<div class="notice"><b>Everything is paused</b>All reminders are silent. Switch them back on whenever you are ready.</div>':""}
+  ${rs.map(r=>`<div class="listrow"><div class="ic">${r.done?"✅":"🗓"}</div>
+   <div style="${r.done?"opacity:.5;text-decoration:line-through":""}"><b>${esc(r.title)}</b><small>${fmt(r.date)}${r.week?" · week "+r.week:""}</small></div>
+   <span class="go" onclick="toggleRem('${r.id}')">${r.done?"↺":"✓"}</span></div>`).join("")}
+  <label class="f">Add your own</label>
+  <input type="text" id="rTitle" placeholder="e.g. Call the hospital about the tour">
+  <input type="date" id="rDate" value="${new Date().toISOString().slice(0,10)}">
+  <button class="btn btn-terra mt" onclick="addRem()">Add reminder</button>
+ </div>`};
+window.toggleRem=id=>{const r=S.d.reminders.find(x=>x.id===id);r.done=!r.done;S.save();go('reminders')};
+window.addRem=()=>{const t=$("#rTitle").value.trim();if(!t)return toast("Give it a title");
+ S.d.reminders.push({id:uid(),title:t,date:$("#rDate").value,done:false,auto:false});S.save();go('reminders');toast("Reminder added")};
+/* ============ LETTERS (partner mode) ============ */
+RENDER.letters=()=>{nav("more");const now=new Date().toISOString().slice(0,10);
+ $("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="go('more')">‹</button><h2 class="serif">Letters to the baby</h2></div>
+  <p class="lede">Write now, seal, and they open it years from today. Sealed letters cannot be read - not even by you - until their day.</p>
+  ${S.d.letters.map(l=>{const open=l.sealedUntil<=now;return`
+   <div class="letter"><div class="wax">${open?"🤍":"✕"}</div>
+    <b class="serif">${open?esc(l.title||"A letter for you"):"Sealed until "+fmt(l.sealedUntil)}</b>
+    <p style="font-size:.82rem;color:var(--ink2);margin-top:8px;line-height:1.6">${open?esc(l.text):"Written by "+esc(l.from)+" on "+fmt(l.createdAt)+". The seal breaks on "+fmt(l.sealedUntil)+"."}</p>
+   </div>`}).join("")||'<div class="empty"><div class="big">💌</div><p>No letters yet. The first one is the hardest and the best.</p></div>'}
+  <label class="f">Write a letter</label>
+  <input type="text" id="lTitle" placeholder="Title (optional)">
+  <textarea id="lText" placeholder="Dear little one..."></textarea>
+  <label class="f">Sealed until</label>
+  <select id="lSeal"><option value="${S.d.profile.birthDate||addDays(S.d.profile.dueDate,0).toISOString().slice(0,10)}">The day they arrive</option>
+   <option value="${addDays(S.d.profile.birthDate||S.d.profile.dueDate,365).toISOString().slice(0,10)}">First birthday</option>
+   <option value="${addDays(S.d.profile.birthDate||S.d.profile.dueDate,365*5).toISOString().slice(0,10)}">Fifth birthday</option>
+   <option value="${addDays(S.d.profile.birthDate||S.d.profile.dueDate,365*18).toISOString().slice(0,10)}">Eighteenth birthday</option></select>
+  <button class="btn btn-terra mt" onclick="saveLetter()">Seal the letter</button>
+ </div>`};
+window.saveLetter=()=>{const t=$("#lText").value.trim();if(!t)return toast("Write something first");
+ S.d.letters.push({id:uid(),from:S.d.profile.name,title:$("#lTitle").value.trim(),text:t,sealedUntil:$("#lSeal").value,createdAt:new Date().toISOString().slice(0,10)});
+ S.save();go('letters');toast("Sealed with love ✕")};
+/* ============ CIRCLE ============ */
+RENDER.circle=()=>{nav("more");const p=S.d.profile;
+ $("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="go('more')">‹</button><h2 class="serif">Your circle</h2></div>
+  <p class="lede">Sharing is per-chapter, per-item, and always in plain words. The vault is never shareable.</p>
+  <div class="card"><b class="serif">Who's here</b>
+   <div class="listrow"><div class="ic">${p.role==="mother"?"🤰":"🫶"}</div><div><b>${esc(p.name)} (you)</b><small>${p.role} · author</small></div></div>
+   ${S.d.circle.map((c,i)=>`<div class="listrow"><div class="ic">👪</div><div><b>${esc(c.name)}</b><small>${esc(c.rel)} · sees only shared chapters</small></div><span class="go" onclick="S.d.circle.splice(${i},1);S.save();go('circle')">✕</span></div>`).join("")}
+  </div>
+  <label class="f">Add someone</label>
+  <input type="text" id="cName" placeholder="Name"><input type="text" id="cRel" placeholder="e.g. Nani, Dadi, best friend">
+  <button class="btn btn-ghost mt" onclick="addCircle()">Add to circle</button>
+  <div class="card"><b class="serif">What they can see</b>
+   ${[["t1","Chapter one - the first whispers"],["t2","Chapter two - the golden months"],["t3","Chapter three - the home straight"],["fy","The first year"]].map(([k,l])=>`
+    <div class="listrow" onclick="S.d.share['${k}']=!S.d.share['${k}'];S.save();go('circle')"><div><b style="font-size:.85rem">${l}</b></div><div class="switch ${S.d.share[k]?'on':''}"></div></div>`).join("")}
+   <div class="notice" style="margin-top:12px"><b>Invite-only at launch</b>Circle members will receive a personal link to read shared chapters in the browser - nothing public, nothing searchable.</div>
+  </div>
+ </div>`};
+window.addCircle=()=>{const n=$("#cName").value.trim();if(!n)return toast("Who is it?");
+ S.d.circle.push({name:n,rel:$("#cRel").value.trim()||"family"});S.save();go('circle');toast(n+" added to the circle")};
+/* ============ KEEPSAKE ============ */
+RENDER.keepsake=()=>{nav("more");const p=S.d.profile,n=S.d.moments.filter(m=>!m.vault).length;
+ $("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="go('more')">‹</button><h2 class="serif">The keepsake</h2></div>
+  <div class="card dark" style="text-align:center;padding:34px 24px">
+   <div style="font-size:2.6rem">🎞</div>
+   <h3 class="serif" style="font-weight:400;font-size:1.3rem;margin-top:10px">The First Year Film</h3>
+   <p style="font-size:.82rem;color:#B9AE97;line-height:1.7;margin-top:10px">Every chapter, every photo, every letter - compiled into a film for ${esc(p.babyName)}'s first birthday. Already compiling since the day you began.</p>
+   <p style="font-size:.72rem;color:var(--gold);margin-top:14px;letter-spacing:.1em">${n} MOMENTS IN THE CAN</p>
+  </div>
+  <div class="card" style="text-align:center;padding:30px 24px">
+   <div style="font-size:2.2rem">📔</div>
+   <h3 class="serif" style="font-weight:400;font-size:1.2rem;margin-top:8px">The Linen Book</h3>
+   <p style="font-size:.82rem;color:var(--ink2);line-height:1.7;margin-top:8px">The same story, printed and bound - a grandparents' edition too. Print fulfilment arrives with the live app.</p>
+  </div>
+ </div>`};
+/* ============ CARE PATH ============ */
+RENDER.care=()=>{nav("more");$("#app").innerHTML=`
+ <div class="screen" style="padding-top:48px">
+  <div class="eyebrow" style="color:var(--sage)">We're here, gently</div>
+  <h1 class="h-display" style="font-size:1.6rem">However this goes,<br>you are <em>not alone</em>.</h1>
+  <p class="lede">If your journey has changed, tell us only what you want. There is no clock here, and nothing deletes on its own - every word and photo stays exactly where you left it, for as long as you want.</p>
+  <div class="tiles" style="grid-template-columns:1fr 1fr">
+   <button class="tile" onclick="careMemorial()"><div class="ic" style="background:var(--sage-soft)">🕊</div><b>A quiet memorial</b><span>Keep the story as a private place to return to</span></button>
+   <button class="tile" onclick="carePause()"><div class="ic" style="background:var(--sage-soft)">🌙</div><b>Pause everything</b><span>Silence all reminders and nudges</span></button>
+   <button class="tile" onclick="exportAll()"><div class="ic" style="background:var(--sage-soft)">📦</div><b>Take everything with you</b><span>Export every word and photo, yours forever</span></button>
+   <button class="tile" onclick="go('support')"><div class="ic" style="background:var(--sage-soft)">🤝</div><b>Someone to talk to</b><span>Real people who understand</span></button>
+  </div>
+  <button class="btn btn-ghost mt" onclick="go('more')">Not now</button>
+ </div>`};
+window.careMemorial=()=>{S.d.settings.care=true;S.d.settings.paused=true;S.save();document.body.classList.add("care");go('today');toast("We'll keep it safe. Take all the time you need.")};
+window.carePause=()=>{S.d.settings.paused=!S.d.settings.paused;S.save();toast(S.d.settings.paused?"Everything is quiet now":"Reminders are back on")};
+RENDER.support=()=>{nav("more");$("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="go('care')">‹</button><h2 class="serif">Someone to talk to</h2></div>
+  <div class="card">
+   ${[["Tommy's","Pregnancy-loss support, midwife helpline and research","tommys.org"],["Sands","Stillbirth & neonatal death charity - helpline and local groups","sands.org.uk"],["The Miscarriage Association","Support, information and a staffed helpline","miscarriageassociation.org.uk"]].map(([n,d,u])=>`
+   <div class="listrow" onclick="window.open('https://www.${u}')"><div class="ic">🤝</div><div><b>${n}</b><small>${d} · ${u}</small></div><span class="go">›</span></div>`).join("")}
+  </div>
+  <div class="notice"><b>And your own people</b>A midwife, GP, or someone you trust - reaching out is the strong move, always.</div>
+  <button class="btn btn-ghost mt" onclick="go('care')">Back</button>
+ </div>`};
+/* ============ MORE / SETTINGS ============ */
+RENDER.more=()=>{nav("more");const p=S.d.profile;
+ $("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="eyebrow">Little Journey</div>
+  <h1 class="h-display" style="font-size:1.6rem">${esc(p.name)} &amp; ${esc(p.babyName)}</h1>
+  <div class="card">
+   ${[["vault","🔒","Medical vault","PIN-locked, never shared"],["letters","💌","Letters to the baby","Sealed until their day"],["circle","👪","Family circle","Per-chapter, invite-only"],["reminders","🗓","Reminders",S.d.settings.paused?"Paused":"On, gently"],["keepsake","🎞","The keepsake","Film & book for the first birthday"]].map(([k,i,t,s])=>`
+   <div class="listrow" onclick="go('${k}')"><div class="ic">${i}</div><div><b>${t}</b><small>${s}</small></div><span class="go">›</span></div>`).join("")}
+  </div>
+  <div class="card">
+   <div class="listrow" onclick="exportAll()"><div class="ic">📦</div><div><b>Export everything</b><small>All your data, one file, yours</small></div><span class="go">›</span></div>
+   <div class="listrow" onclick="go('care')"><div class="ic">🕊</div><div><b>Something has changed</b><span class="go" style="font-size:.72rem;color:var(--ink2)">gently ›</span></div></div>
+   <div class="listrow" onclick="if(confirm('Erase everything on this device?'))S.reset()"><div class="ic">🧺</div><div><b style="color:#A4442C">Erase this story</b><small>Deletes all data on this device</small></div></div>
+  </div>
+  <p style="text-align:center;font-size:.68rem;color:var(--ink2);margin-top:20px;line-height:1.6">Little Journey · your data lives on this device<br>guidance basis: NHS week-by-week &amp; American Pregnancy Association</p>
+ </div>`};
+window.exportAll=()=>{const blob=new Blob([JSON.stringify(S.d,null,2)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="little-journey-export.json";a.click();toast("Everything, in your hands")};
+/* ============ BOOT ============ */
+if(S.d.settings&&S.d.settings.care)document.body.classList.add("care");
+S.d.profile?go('today'):go('ob1');
+</script>
+</body>
+</html>
