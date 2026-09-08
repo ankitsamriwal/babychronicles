@@ -1258,6 +1258,149 @@ RENDER.essentials=()=>{nav("more");const p=S.d.profile,g=p.gender||"all";
  </div>`};
 window.essToggle=id=>{const e=S.d.essentials;if(e[id])delete e[id];else e[id]=true;S.save();go('essentials')};
 window.essGender=g=>{S.d.profile.gender=S.d.profile.gender===g?undefined:g;S.save();go('essentials')};
+
+/* ============ NOURISH & MOVE (trimester diet + exercise) ============ */
+const NOURISHSRC=[
+ ["ACOG - Healthy Eating During Pregnancy","https://www.acog.org/womens-health/faqs/healthy-eating-during-pregnancy"],
+ ["ACOG - Exercise During Pregnancy","https://www.acog.org/womens-health/faqs/exercise-during-pregnancy"],
+ ["ACOG - Routine Tests During Pregnancy","https://www.acog.org/womens-health/faqs/routine-tests-during-pregnancy"],
+ ["NHS - Foods to avoid in pregnancy","https://www.nhs.uk/pregnancy/keeping-well/foods-to-avoid/"],
+ ["NHS - Exercise in pregnancy","https://www.nhs.uk/pregnancy/keeping-well/exercise/"],
+ ["WHO - Eating healthy food during pregnancy","https://www.who.int/tools/your-life-your-health/life-phase/pregnancy--birth-and-after-childbirth/eating-healthy-food-during-pregnancy"],
+ ["ICMR-NIN - Dietary Guidelines for Indians 2024","https://nin.res.in/dietaryguidelines/pdfjs/locale/DGI_2024.pdf"],
+ ["FOGSI-ICOG - Routine Antenatal Care (GCPR)","https://www.fogsi.org/wp-content/uploads/2024/08/Binder_Routine-Antenatal-Care-for-the-Healthy-Pregnant-Women.pdf"]];
+const NOURISHMONTH={1:"Just found out? Folic acid (400 mcg supplement) starts now - the baby's neural tube forms in these first weeks, often before the test turns positive.",
+ 2:"Nausea peaks around now. Small, frequent, plain meals beat three big ones - ginger and mint are the gentle standbys.",
+ 3:"Folate's biggest window closes at week 12; iron's long climb begins. Keep the greens, add the vitamin C.",
+ 4:"Energy usually returns - the famous second-trimester lift. Build the calcium habit before the growth spurt.",
+ 5:"Halfway there, and the anomaly-scan window. Steady protein and calcium are the job now.",
+ 6:"The glucose test comes at 24-28 weeks. Whole grains over refined, fruit over juice - the right plate either way.",
+ 7:"Third trimester. The stomach has less room - smaller meals, more often, and fibre every day.",
+ 8:"The growth spurt - the baby gains most of its weight here. Iron and protein at every meal.",
+ 9:"Almost there. Fibre, fluids and rest. Eat for energy, not for two."};
+const NOURISHTRI={
+ 1:{label:"First trimester",weeks:"Weeks 1-13",
+  focus:"The blueprint months - every organ sketches itself in, and folate matters most. Nausea is normal; graze, don't feast.",
+  nutrients:[["Folic acid","600 mcg/day (400 mcg as a supplement)"],["Iron","27 mg/day"],["Iodine","220 mcg/day - iodised salt covers it"],["Vitamin B6","1.9 mg/day - also the classic nausea helper"],["Vitamin C","85 mg/day - helps iron absorb"]],
+  reports:[["Booking bloods - CBC/Hb, blood group & Rh, sugar, TSH, urine","If haemoglobin comes back low, your doctor adds iron. On the plate: iron-rich food with vitamin C (amla, citrus), and tea or coffee kept an hour away from meals."],
+   ["First-visit sugar test (DIPSI) & infection screening (HIV, hepatitis B, syphilis)","An early high sugar reading rewrites the whole diet plan - follow your doctor's version, not this one."],
+   ["NT scan + double marker, weeks 11-14","A growth-and-dating milestone, not a diet one. Keep folate going to week 12 and small meals through the nausea."]],
+  eat:[["t1_dal","Dals, chana & rajma - a katori at both meals","protein + folate"],
+   ["t1_greens","Dark green leaves - palak, methi, sarson","folate + iron"],
+   ["t1_vitc","Amla, citrus, guava - after iron-rich meals","vitamin C"],
+   ["t1_dairy","Milk, curd & paneer","calcium + B12"],
+   ["t1_grains","Whole grains - whole-wheat roti, oats, brown rice","steady energy"],
+   ["t1_ginger","Ginger, mint, nimbu-pani - when the stomach turns","nausea"],
+   ["t1_banana","Bananas & coconut water - gentle, quick energy",""],
+   ["t1_eggs","Eggs, fully cooked - if you eat them","choline + B12","nv"]],
+  move:[["t1m_walk","Brisk walking, 20-30 minutes most days - the ACOG target is 150 minutes of moderate activity a week, built up slowly"],
+   ["t1m_yoga","Modified prenatal yoga - tell the teacher you're pregnant and how many weeks"],
+   ["t1m_swim","Swimming, if it was already your thing"],
+   ["t1m_pf","Pelvic-floor squeezes, 3 sets of 8 a day - one set per meal is the easy way to remember"],
+   ["t1m_heat","Keep cool: no overheating, no hot yoga - the first trimester is when heat matters most"]]},
+ 2:{label:"Second trimester",weeks:"Weeks 14-27",
+  focus:"Energy returns and the baby lays down bone - calcium, vitamin D, protein and omega-3 carry this trimester.",
+  nutrients:[["Calcium","1,000 mg/day from food - FOGSI recommends a 1.5 g supplement for Indian women"],["Vitamin D","600 IU/day - FOGSI advises routine supplementation in India"],["Iron","27 mg/day - blood volume is climbing"],["Omega-3 (DHA)","2-3 fish servings a week, or walnuts, flax & greens"],["Protein","about 10 g extra a day (ICMR-NIN)"]],
+  reports:[["Anomaly scan, weeks 18-23","Growth on track is the goal of this scan - calcium, protein and vitamin D do the heavy lifting on the plate."],
+   ["Glucose test (DIPSI/OGTT), weeks 24-28","Ahead of it: whole grains over refined, fruit over juice, sweets as an occasion. Not to beat the test - because it's the right plate anyway."],
+   ["Haemoglobin re-check","Iron needs climb as blood volume grows - IFA tablet daily as prescribed, iron-rich food alongside."]],
+  eat:[["t2_ragi","Ragi - porridge, dosa or roti","calcium + iron"],
+   ["t2_dairy","Milk, curd, paneer & buttermilk","calcium"],
+   ["t2_sesame","Sesame (til) & almonds - a small handful","calcium + D"],
+   ["t2_orange","Carrot, pumpkin, sweet potato - the orange shelf","vitamin A, food-safe"],
+   ["t2_sprouts","Sprouted moong & chana - steamed or cooked","protein + folate"],
+   ["t2_eggs","Eggs, fully cooked - if you eat them","choline + protein","nv"],
+   ["t2_fish","Well-cooked, low-mercury fish (rohu, sardine) - up to 2 servings a week, if you eat fish","omega-3","nv"]],
+  move:[["t2m_walk","Brisk walking - keep the 150-minutes-a-week rhythm"],
+   ["t2m_swim","Swimming or aqua-natal classes - the water carries the weight"],
+   ["t2m_bike","Stationary cycling - kinder to balance than the road"],
+   ["t2m_yoga","Modified prenatal yoga or pilates"],
+   ["t2m_tilt","Pelvic tilts & cat stretch - the NHS backache pair, 10 slow reps"],
+   ["t2m_back","From week 16, skip exercises lying flat on your back - the bump presses on a major vein"]]},
+ 3:{label:"Third trimester",weeks:"Weeks 28-40",
+  focus:"The growth spurt - the baby gains most of its weight here. Smaller meals, more often; fibre and fluids keep everything moving.",
+  nutrients:[["Iron","27 mg/day - the trimester anemia bites hardest"],["Calcium","1,000 mg/day - still building"],["Protein","at every meal - growth fuel"],["Fibre + fluids","8-12 cups of water a day (ACOG)"],["Omega-3 (DHA)","brain growth is fastest now"]],
+  reports:[["Growth scan, around weeks 28-32","If growth runs small or large, your doctor adjusts the plan - protein-rich meals every 3-4 hours are the usual base."],
+   ["Haemoglobin, checked again","Keep the iron plate and the IFA tablet going to the finish line."],
+   ["Tdap vaccine at week 28 (FOGSI)","One for the ask-your-doctor list - it passes whooping-cough protection to the baby."],
+   ["Group B strep swab, weeks 36-38","A swab, not a diet item - daily curd or buttermilk is a good habit anyway."]],
+  eat:[["t3_small","Smaller portions, 5-6 times a day - the stomach has tenants now","heartburn"],
+   ["t3_fibre","Fibre at every meal - whole grains, vegetables, fruit","constipation"],
+   ["t3_iron","The iron shelf - greens, jaggery & til, dates, sprouts","iron"],
+   ["t3_fluids","Water, nimbu-pani, buttermilk - 8-12 cups through the day","fluids"],
+   ["t3_protein","Dal, paneer, curd, eggs or fish at every meal","protein","nv"],
+   ["t3_light","Light early dinners; fried and very spicy food late at night invites heartburn","heartburn"]],
+  move:[["t3m_walk","Walking, at talk-test pace - you should be able to hold a conversation"],
+   ["t3m_swim","Swimming or aqua-natal - the kindest exercise this trimester"],
+   ["t3m_pf","Pelvic-floor squeezes daily - they do their real work at delivery and after"],
+   ["t3m_cat","Cat stretch & pelvic tilts for the back, 10 slow reps"],
+   ["t3m_breath","Breathing & relaxation practice - rehearsal for the big day"],
+   ["t3m_rest","Rest is training too - stop before tired, not after"]]}};
+const NOURISHAVOID=["Alcohol - none is the safest amount (NHS, FOGSI)","Raw or undercooked meat, eggs and seafood - cook through","Unpasteurised milk and soft mould-ripened cheese","High-mercury fish: shark, swordfish, marlin - tuna limited (NHS, ACOG)","Liver and any supplement with vitamin A","Caffeine over 200 mg a day - roughly two mugs of instant coffee","Unwashed fruit, salad and raw sprouts - wash everything well","Cold-smoked fish and cured deli meats, unless steaming hot"];
+const NOURISHMOVEAVOID=["Contact sports and anything with a hit-to-the-belly risk","Fall-risk sports - skiing, horse riding, gymnastics, road cycling later on","Hot yoga or hot pilates","Scuba diving","Long stretches flat on your back after week 16"];
+const NOURISHWARN=["Vaginal bleeding","Dizziness or feeling faint","Shortness of breath before you even start","Chest pain or headache","Calf pain or swelling","Regular, painful contractions","Fluid leaking"];
+function nourishState(){S.d.nourish=S.d.nourish||{tri:0,veg:false,hidden:[],custom:[]};return S.d.nourish}
+RENDER.nourish=()=>{nav("more");const ns=nourishState(),p=S.d.profile,w=curWeek();
+ const curTri=w?trimesterOf(w):0,tri=ns.tri||curTri||1,T=NOURISHTRI[tri];
+ const month=w?Math.min(9,Math.max(1,Math.ceil(w/4.345))):null;
+ const hidden=id=>ns.hidden.includes(id);
+ const rows=(kind)=>{let base=(kind==="eat"?T.eat:T.move).filter(it=>!hidden(it[0])&&!(ns.veg&&it[3]==="nv"));
+  const cust=ns.custom.filter(c=>c.tri===tri&&c.kind===kind);
+  return {base,cust}};
+ const eat=rows("eat"),mv=rows("move");
+ const hiddenCount=(kind)=>(kind==="eat"?T.eat:T.move).filter(it=>hidden(it[0])).length;
+ $("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="go('more')">‹</button><h2 class="serif">Nourish &amp; move</h2></div>
+  <p class="lede">What to eat and how to move, trimester by trimester - tied to the reports each phase brings.</p>
+  <div class="notice"><b>General guidance, not medical advice</b>Every pregnancy is different. Take this to your doctor or gynecologist and shape it together - where their advice differs, theirs wins. Supplements only as they prescribe.</div>
+  ${stage()==="post"?`<div class="notice" style="margin-top:10px"><b>The pregnancy chapters, kept</b>${esc(p.babyName)} has arrived - this guided the nine months behind you. Browse any trimester below.</div>`:""}
+  <div class="chips">${[1,2,3].map(t=>`<button class="chip ${tri===t?'on':''}" onclick="nourishTri(${t})">${NOURISHTRI[t].label}${t===curTri?" · you":""}</button>`).join("")}
+   <button class="chip terra ${ns.veg?'on':''}" onclick="nourishVeg()">${ns.veg?"Vegetarian view":"Vegetarian?"}</button></div>
+  ${month&&tri===curTri?`<div class="notice" style="margin-top:14px"><b>Month ${month} - where you are</b>${NOURISHMONTH[month]}</div>`:""}
+  <div class="card" style="padding:14px 16px;margin-top:14px"><b class="serif" style="font-size:1.02rem">${T.label} <span style="color:var(--ink2);font-weight:400;font-size:.8rem">${T.weeks}</span></b>
+   <p style="font-size:.8rem;line-height:1.55;color:var(--ink2);margin:6px 0 0">${T.focus}</p></div>
+  <div class="card" style="padding:6px 16px 10px;margin-top:14px">
+   <div style="padding-top:10px"><b class="serif" style="font-size:1.02rem">The reports this phase - and your plate</b></div>
+   ${T.reports.map(r=>`<div class="listrow" style="cursor:default;align-items:flex-start"><div class="ic">🧪</div><div><b>${r[0]}</b><small style="line-height:1.5;display:block;margin-top:2px">${r[1]}</small></div></div>`).join("")}
+  </div>
+  <div class="card" style="padding:6px 16px 10px;margin-top:14px">
+   <div style="display:flex;justify-content:space-between;align-items:baseline;padding-top:10px"><b class="serif" style="font-size:1.02rem">Eat well</b>${hiddenCount("eat")?`<small style="color:var(--ink2);cursor:pointer" onclick="nourishRestore('eat')">restore ${hiddenCount("eat")} hidden</small>`:""}</div>
+   ${eat.base.map(it=>`<div class="listrow" style="cursor:default"><div class="ic">🥣</div><div><b>${it[1]}</b>${it[2]?`<small>${it[2]}</small>`:""}</div><span class="go" style="cursor:pointer" onclick="nourishHide('${it[0]}')" title="Not for me">✕</span></div>`).join("")}
+   ${eat.cust.map(c=>`<div class="listrow" style="cursor:default"><div class="ic">✍️</div><div><b>${esc(c.text)}</b><small>yours</small></div><span class="go" style="cursor:pointer" onclick="nourishDelCustom('${c.id}')">✕</span></div>`).join("")}
+   <div style="display:flex;gap:8px;padding:10px 0 4px"><input id="addEat" placeholder="Add your own - what your mother or doctor swears by" style="flex:1;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:.8rem;background:var(--paper);color:var(--ink)"><button class="btn btn-ghost" style="padding:9px 14px;font-size:.78rem" onclick="nourishAdd('eat',${tri})">Add</button></div>
+  </div>
+  <div class="card" style="padding:14px 16px;margin-top:14px"><b class="serif" style="font-size:1.02rem">Key nutrients this trimester</b>
+   ${T.nutrients.map(n=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);font-size:.82rem"><b>${n[0]}</b><span style="color:var(--ink2);text-align:right">${n[1]}</span></div>`).join("")}
+  </div>
+  <div class="card" style="padding:6px 16px 10px;margin-top:14px">
+   <div style="display:flex;justify-content:space-between;align-items:baseline;padding-top:10px"><b class="serif" style="font-size:1.02rem">Move</b>${hiddenCount("move")?`<small style="color:var(--ink2);cursor:pointer" onclick="nourishRestore('move')">restore ${hiddenCount("move")} hidden</small>`:""}</div>
+   ${mv.base.map(it=>`<div class="listrow" style="cursor:default"><div class="ic">🚶‍♀️</div><div><b style="font-weight:500;line-height:1.45">${it[1]}</b></div><span class="go" style="cursor:pointer" onclick="nourishHide('${it[0]}')" title="Not for me">✕</span></div>`).join("")}
+   ${mv.cust.map(c=>`<div class="listrow" style="cursor:default"><div class="ic">✍️</div><div><b style="font-weight:500;line-height:1.45">${esc(c.text)}</b><small>yours</small></div><span class="go" style="cursor:pointer" onclick="nourishDelCustom('${c.id}')">✕</span></div>`).join("")}
+   <div style="display:flex;gap:8px;padding:10px 0 4px"><input id="addMove" placeholder="Add your own - a walk route, a class, a ritual" style="flex:1;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:.8rem;background:var(--paper);color:var(--ink)"><button class="btn btn-ghost" style="padding:9px 14px;font-size:.78rem" onclick="nourishAdd('move',${tri})">Add</button></div>
+  </div>
+  <div class="card" style="padding:6px 16px 10px;margin-top:14px">
+   <div style="padding-top:10px"><b class="serif" style="font-size:1.02rem">Off the plate, all nine months</b></div>
+   ${NOURISHAVOID.map(a=>`<div class="listrow" style="cursor:default;padding:9px 0"><div class="ic">🚫</div><div><b style="font-weight:500;line-height:1.45">${a}</b></div></div>`).join("")}
+   <div style="padding-top:10px"><b class="serif" style="font-size:1.02rem">Movement to skip</b></div>
+   ${NOURISHMOVEAVOID.map(a=>`<div class="listrow" style="cursor:default;padding:9px 0"><div class="ic">⚠️</div><div><b style="font-weight:500;line-height:1.45">${a}</b></div></div>`).join("")}
+  </div>
+  <div class="notice" style="background:var(--terra-soft);color:#9C4A28"><b>Stop and call your doctor if, while moving, you notice</b>${NOURISHWARN.join(" · ")}.</div>
+  <div class="card" style="padding:6px 16px 10px;margin-top:14px">
+   <div style="padding-top:10px"><b class="serif" style="font-size:1.02rem">The sources behind this</b></div>
+   ${NOURISHSRC.map(s=>`<div class="listrow" onclick="window.open('${s[1]}','_blank')"><div class="ic">📄</div><div><b>${s[0]}</b></div><span class="go">›</span></div>`).join("")}
+  </div>
+  <p style="font-size:.68rem;color:var(--ink2);text-align:center;margin-top:18px;line-height:1.6">General guidance from published medical sources, not a prescription.<br>Your doctor or gynecologist knows your pregnancy - their plan wins.</p>
+ </div>`};
+window.nourishTri=t=>{nourishState().tri=t;S.save();go('nourish')};
+window.nourishVeg=()=>{const ns=nourishState();ns.veg=!ns.veg;S.save();go('nourish')};
+window.nourishHide=id=>{const ns=nourishState();if(!ns.hidden.includes(id))ns.hidden.push(id);S.save();go('nourish');toast("Hidden - restore it any time")};
+window.nourishRestore=kind=>{const ns=nourishState(),T=NOURISHTRI[ns.tri||1];
+ const ids=new Set((kind==="eat"?T.eat:T.move).map(i=>i[0]));ns.hidden=ns.hidden.filter(h=>!ids.has(h));S.save();go('nourish')};
+window.nourishAdd=(kind,tri)=>{const el=$("#add"+(kind==="eat"?"Eat":"Move")),v=el.value.trim();if(!v)return;
+ const ns=nourishState();ns.custom.push({id:uid(),kind,tri,text:v});S.save();go('nourish');toast("Added to your list")};
+window.nourishDelCustom=id=>{const ns=nourishState();ns.custom=ns.custom.filter(c=>c.id!==id);S.save();go('nourish')};
+
 /* ============ MORE / SETTINGS ============ */
 RENDER.more=()=>{nav("more");const p=S.d.profile;
  $("#app").innerHTML=`
@@ -1265,7 +1408,7 @@ RENDER.more=()=>{nav("more");const p=S.d.profile;
   <div class="eyebrow">Baby Chronicles</div>
   <h1 class="h-display" style="font-size:1.6rem">${esc(p.name)} &amp; ${esc(p.babyName)}</h1>
   <div class="card">
-   ${[["vault","🔒","Medical vault","PIN-locked, never shared"],["letters","💌","Letters to the baby","Sealed until their day"],["circle","👪","Family circle","Per-chapter, invite-only"],["reminders","🗓","Reminders",S.d.settings.paused?"Paused":"On, gently"],["keepsake","🎞","The keepsakes","Film, book, wall collage, blanket & more"],["vaccines","💉","Vaccinations","IAP schedule, ticked and dated"],["essentials","🍼","Baby essentials","Hospital bag to first birthday"]].map(([k,i,t,s])=>`
+   ${[["vault","🔒","Medical vault","PIN-locked, never shared"],["letters","💌","Letters to the baby","Sealed until their day"],["circle","👪","Family circle","Per-chapter, invite-only"],["reminders","🗓","Reminders",S.d.settings.paused?"Paused":"On, gently"],["keepsake","🎞","The keepsakes","Film, book, wall collage, blanket & more"],["vaccines","💉","Vaccinations","IAP schedule, ticked and dated"],["essentials","🍼","Baby essentials","Hospital bag to first birthday"],["nourish","🥗","Nourish & move","Trimester diet, tied to your reports"]].map(([k,i,t,s])=>`
    <div class="listrow" onclick="go('${k}')"><div class="ic">${i}</div><div><b>${t}</b><small>${s}</small></div><span class="go">›</span></div>`).join("")}
   </div>
   <div class="card">
@@ -1283,7 +1426,7 @@ window.importAll=inp=>{const f=inp.files[0];if(!f)return;const r=new FileReader(
  r.onload=()=>{try{const d=JSON.parse(r.result);
   if(!d||typeof d!=="object"||(!d.profile&&!Array.isArray(d.moments)))throw new Error("bad");
   if(!confirm("This replaces everything on this device with the backup file. Sure?"))return;
-  S.d=d;S.d.settings=d.settings||{paused:false,care:false};S.d.vaccines=d.vaccines||{};S.d.essentials=d.essentials||{};
+  S.d=d;S.d.settings=d.settings||{paused:false,care:false};S.d.vaccines=d.vaccines||{};S.d.essentials=d.essentials||{};S.d.nourish=d.nourish||{tri:0,veg:false,hidden:[],custom:[]};
   S.save();location.reload()}catch(e){toast("That file doesn't look like a Baby Chronicles backup")}};
  r.readAsText(f);inp.value=""};
 /* ============ BOOT ============ */
