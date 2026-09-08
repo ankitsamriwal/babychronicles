@@ -124,6 +124,13 @@ body.care .ring .fg{stroke:var(--sage)}
 .seg{display:flex;background:var(--cream2);border-radius:999px;padding:4px;margin-top:16px}
 .seg button{flex:1;border:none;background:none;padding:10px;border-radius:999px;font-size:.78rem;font-weight:600;color:var(--ink2);cursor:pointer;font-family:var(--sans)}
 .seg button.on{background:var(--paper);color:var(--ink);box-shadow:0 2px 8px rgba(46,42,36,.1)}
+/* keepsakes */
+.ks-gallery{display:flex;flex-direction:column;gap:18px;margin-top:18px}
+.ks-fig{margin:0;background:var(--paper);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.ks-fig img{width:100%;display:block;aspect-ratio:4/5;object-fit:cover;background:var(--cream2)}
+.ks-fig figcaption{padding:14px 18px 16px}
+.ks-fig b{display:block;font-size:.95rem;font-weight:500}
+.ks-fig span{font-size:.76rem;color:var(--ink2);display:block;margin-top:2px;line-height:1.5}
 .listrow{display:flex;align-items:center;gap:14px;padding:16px 2px;border-bottom:1px solid var(--line);cursor:pointer}
 .listrow:last-child{border:none}
 .listrow .ic{width:40px;height:40px;border-radius:12px;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex:none}
@@ -436,6 +443,10 @@ RENDER.today=()=>{nav("today");const p=S.d.profile,w=curWeek(),st=stage();
     <div class="eyebrow" style="margin:0">${pg[0]} · the first year</div>
     <p style="font-size:.85rem;line-height:1.6;margin-top:6px">${pg[1]}</p>
     <small style="color:var(--terra);font-weight:600;font-size:.75rem">The first-year guide →</small></div>`:""}
+  ${st==="post"&&pm>=11?`<div class="card dark" style="cursor:pointer" onclick="go('keepsake')">
+    <div class="eyebrow" style="color:var(--gold);margin:0">${pm>=12?"One whole year":"The home straight of year one"}</div>
+    <b class="serif" style="font-size:1.15rem;display:block;margin-top:6px">${pm>=12?("The first year of "+esc(p.babyName)+", complete"):("The first year is almost complete")}</b>
+    <p style="font-size:.82rem;color:#B9AE97;line-height:1.6;margin-top:6px">The film, the book, the wall collage, the blanket and the box - the keepsakes are ready when you are.</p></div>`:""}
   ${nextRem?`<div class="card" style="display:flex;gap:14px;align-items:center;cursor:pointer" onclick="go('reminders')">
     <div class="ic" style="width:40px;height:40px;border-radius:12px;background:var(--cream2);display:flex;align-items:center;justify-content:center">🗓</div>
     <div><b style="font-size:.88rem">${esc(nextRem.title)}</b><br><small style="color:var(--ink2)">${fmt(nextRem.date)}</small></div></div>`:""}
@@ -847,25 +858,247 @@ window.importChronicle=inp=>{const f=inp.files[0];if(!f)return;const r=new FileR
   const parts=[nm?nm+" new moment"+(nm>1?"s":""):"",nl?nl+" letter"+(nl>1?"s":""):"",nr?nr+" reminder"+(nr>1?"s":""):""].filter(Boolean);
   toast(parts.length?"Merged "+from+"'s chronicle - "+parts.join(", "):"Already up to date with "+from+"'s chronicle")};
  r.readAsText(f)};
-/* ============ KEEPSAKE ============ */
+/* ============ KEEPSAKES HUB ============ */
 RENDER.keepsake=()=>{nav("more");const p=S.d.profile,n=S.d.moments.filter(m=>!m.vault).length;
+ const done=p.birthDate&&weeksBetween(p.birthDate,new Date())>=52;
  $("#app").innerHTML=`
  <div class="screen" style="padding-top:38px">
-  <div class="header"><button class="back" onclick="go('more')">‹</button><h2 class="serif">The keepsake</h2></div>
-  <div class="card dark" style="text-align:center;padding:34px 24px">
-   <div style="font-size:2.6rem">🎞</div>
-   <h3 class="serif" style="font-weight:400;font-size:1.3rem;margin-top:10px">The First Year Film</h3>
-   <p style="font-size:.82rem;color:#B9AE97;line-height:1.7;margin-top:10px">Every chapter, every photo, every letter - compiled into a film for ${esc(p.babyName)}'s first birthday. Already compiling since the day you began.</p>
-   <p style="font-size:.72rem;color:var(--gold);margin-top:14px;letter-spacing:.1em">${n} MOMENTS IN THE CAN</p>
+  <div class="header"><button class="back" onclick="go('more')">‹</button><h2 class="serif">The keepsakes</h2></div>
+  ${done?`<div class="card" style="background:linear-gradient(150deg,#FFF6E4,#F6E3CB);text-align:center;padding:28px 22px;border-color:rgba(200,155,90,.45)">
+   <div style="font-size:2rem">🎂</div>
+   <h3 class="serif" style="font-weight:400;font-size:1.3rem;margin-top:8px">One whole year of ${esc(p.babyName)}</h3>
+   <p style="font-size:.82rem;color:var(--ink2);line-height:1.65;margin-top:6px">The journey completes here - and becomes the things you keep. The film, the book, the wall, the blanket and the box are ready when you are.</p></div>`
+  :`<p class="lede" style="margin-top:2px">Everything you capture is quietly becoming keepsakes - complete when the first year is.</p>`}
+  <div class="card dark" style="text-align:center;padding:30px 24px">
+   <div style="font-size:2.2rem">🎞</div>
+   <h3 class="serif" style="font-weight:400;font-size:1.25rem;margin-top:10px">The First Year Film</h3>
+   <p style="font-size:.82rem;color:#B9AE97;line-height:1.7;margin-top:8px">Every chapter, every photo, every letter - compiled into a film for ${esc(p.babyName)}'s first birthday.</p>
+   <p style="font-size:.72rem;color:var(--gold);margin-top:12px;letter-spacing:.1em">${n} MOMENTS IN THE CAN</p>
    <button class="btn mt" style="background:var(--gold);color:var(--ink)" onclick="playFilm()">▶ Watch the story so far</button>
   </div>
-  <div class="card" style="text-align:center;padding:30px 24px">
-   <div style="font-size:2.2rem">📔</div>
-   <h3 class="serif" style="font-weight:400;font-size:1.2rem;margin-top:8px">The Keepsake Book</h3>
-   <p style="font-size:.82rem;color:var(--ink2);line-height:1.7;margin-top:8px">The same story, typeset like a book - cover, chapters, photos, and the letters that have opened. Print it or save it as a PDF, whenever you like.</p>
-   <button class="btn btn-ghost mt" onclick="printBook()">🖨 Print / save as PDF</button>
+  <div class="card" style="cursor:pointer;padding:18px" onclick="go('collage')">
+   <img src="keepsakes/collage-grid.jpg" alt="A framed photo collage of the first year" style="width:100%;border-radius:14px;aspect-ratio:16/10;object-fit:cover">
+   <div style="display:flex;gap:12px;align-items:center;margin-top:14px">
+    <div style="flex:1;min-width:0"><b class="serif" style="font-size:1.08rem">The Wall of Firsts</b><br><small style="color:var(--ink2);font-size:.74rem;line-height:1.5">The year's photos, composed into a print-ready collage for a real frame. Compose yours in the app.</small></div>
+    <span style="color:var(--ink2)">›</span>
+   </div>
+  </div>
+  <div class="card" style="cursor:pointer;padding:18px" onclick="go('blanket')">
+   <img src="keepsakes/blanket-patchwork.jpg" alt="A keepsake blanket sewn from first-year clothes" style="width:100%;border-radius:14px;aspect-ratio:16/10;object-fit:cover">
+   <div style="display:flex;gap:12px;align-items:center;margin-top:14px">
+    <div style="flex:1;min-width:0"><b class="serif" style="font-size:1.08rem">The First-Year Blanket</b><br><small style="color:var(--ink2);font-size:.74rem;line-height:1.5">The outgrown onesies, unstitched and sewn again into one blanket.</small></div>
+    <span style="color:var(--ink2)">›</span>
+   </div>
+  </div>
+  <div class="card">
+   <div class="eyebrow" style="margin:0 0 4px">More ways to keep them small</div>
+   <div class="listrow" onclick="printBook()"><div class="ic">📔</div><div><b>The Keepsake Book</b><small>The story typeset like a book - print / PDF</small></div><span class="go">›</span></div>
+   <div class="listrow" onclick="go('prints')"><div class="ic">👣</div><div><b>Little Hands, Little Feet</b><small>Print &amp; cast impressions, and how to take them</small></div><span class="go">›</span></div>
+   <div class="listrow" onclick="go('poster')"><div class="ic">🌙</div><div><b>The Birth Poster</b><small>Their name and first measurements, typeset to scale</small></div><span class="go">›</span></div>
+   <div class="listrow" onclick="go('mbox')"><div class="ic">🤎</div><div><b>The Memory Box</b><small>The bracelet, the booties, the lock of hair - with a checklist</small></div><span class="go">›</span></div>
   </div>
  </div>`};
+/* ============ WALL OF FIRSTS (COLLAGE) ============ */
+RENDER.collage=()=>{nav("more");const p=S.d.profile;
+ const pics=S.d.moments.filter(m=>m.dataURL&&!m.vault);
+ $("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="go('keepsake')">‹</button><h2 class="serif">The wall of firsts</h2></div>
+  <p class="lede">One year of photos, composed into a single print - made for a real frame on a real wall. Three original layouts, print-ready at A3 or A2.</p>
+  <div class="ks-gallery">
+   ${[["keepsakes/collage-grid.jpg","The Year Grid","Twelve months, twelve squares. One glance holds the whole year."],
+      ["keepsakes/collage-arc.jpg","The Story Arc","One hero moment above, the filmstrip of everything else below."],
+      ["keepsakes/collage-firsts.jpg","The Firsts","The milestones that mattered, side by side."]].map(([src,t,d])=>`
+   <figure class="ks-fig"><img src="${src}" alt="${t} - sample design"><figcaption><b class="serif">${t}</b><span>${d}</span></figcaption></figure>`).join("")}
+  </div>
+  <div class="card">
+   <b class="serif" style="font-size:1.05rem">Preview it with ${esc(p.babyName)}'s photos</b>
+   <p style="font-size:.8rem;color:var(--ink2);line-height:1.6;margin-top:6px">Composed on this device from the ${pics.length} photo${pics.length===1?"":"s"} already in your story. Nothing is uploaded, ever.</p>
+   <div class="chips" id="ksLayout">
+    ${[["grid","The Year Grid"],["arc","The Story Arc"],["firsts","The Firsts"]].map(([k,t],i)=>`<button class="chip terra ${i===0?'on':''}" data-k="${k}">${t}</button>`).join("")}
+   </div>
+   <button class="btn btn-terra mt" onclick="buildCollage()">Compose the print</button>
+   <div id="ksPrev"></div>
+   <div id="ksDl"></div>
+  </div>
+  <div class="notice"><b>Printing it beautifully</b>The download is a high-resolution PNG, 3200 pixels wide. Any photo printer can take it from there - A3 with a wide mat sits beautifully in a 40×50 cm frame.</div>
+ </div>`;
+ $("#ksLayout").querySelectorAll(".chip").forEach(c=>c.onclick=()=>{$("#ksLayout").querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));c.classList.add("on")})};
+window.buildCollage=async()=>{const p=S.d.profile;
+ const chip=$("#ksLayout .chip.on");const k=chip?chip.dataset.k:"grid";
+ const pics=S.d.moments.filter(m=>m.dataURL&&!m.vault).sort((a,b)=>new Date(a.date)-new Date(b.date));
+ if(!pics.length)return toast("Capture a few photos first");
+ toast("Composing - a few seconds");
+ try{await document.fonts.ready}catch(e){}
+ const load=u=>new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src=u});
+ const cover=(ctx,im,x,y,w,h)=>{const s=Math.max(w/im.naturalWidth,h/im.naturalHeight),dw=im.naturalWidth*s,dh=im.naturalHeight*s;ctx.drawImage(im,x+(w-dw)/2,y+(h-dh)/2,dw,dh)};
+ const spread=(arr,n)=>{const r=[];for(let i=0;i<n;i++)r.push(arr[Math.min(Math.floor(i*arr.length/n),arr.length-1)]);return r};
+ const mon=m=>new Date(m.date).toLocaleDateString("en-GB",{month:"short"}).toUpperCase();
+ const TONES=["#F3EAD9","#EAE3D2","#EDE7DA"];
+ const cv=document.createElement("canvas");const ctx=cv.getContext("2d");
+ const chrome=(W,H,title,sub)=>{cv.width=W;cv.height=H;
+  ctx.fillStyle="#FAF4E8";ctx.fillRect(0,0,W,H);
+  ctx.fillStyle="#FFFDF8";ctx.fillRect(60,60,W-120,H-120);
+  ctx.strokeStyle="rgba(46,42,36,.35)";ctx.lineWidth=3;ctx.strokeRect(40,40,W-80,H-80);
+  ctx.textAlign="center";ctx.fillStyle="#2E2A24";
+  ctx.font="500 92px Fraunces, Georgia, serif";ctx.fillText(title,W/2,190);
+  ctx.font="400 36px Inter, sans-serif";ctx.fillStyle="#6B6357";ctx.fillText(sub,W/2,250)};
+ const cell=(im,x,y,w,h,i,label)=>{if(im){cover(ctx,im,x,y,w,h)}else{ctx.fillStyle=TONES[i%3];ctx.fillRect(x,y,w,h);
+   ctx.fillStyle="#C98A7A";ctx.font="300 110px Fraunces, Georgia, serif";ctx.textAlign="center";ctx.fillText("♡",x+w/2,y+h/2+38)}
+  ctx.strokeStyle="rgba(46,42,36,.18)";ctx.lineWidth=2;ctx.strokeRect(x,y,w,h);
+  if(label){ctx.fillStyle="#6B6357";ctx.font="600 30px Inter, sans-serif";ctx.textAlign="center";ctx.fillText(label,x+w/2,y+h+44)}};
+ const name=p.babyName||"little one";
+ const dateRange=fmt(pics[0].date)+" - "+fmt(pics[pics.length-1].date);
+ if(k==="grid"){
+  const sel=spread(pics,12);const ims=await Promise.all(sel.map(m=>load(m.dataURL)));
+  chrome(3200,2740,"The first year of "+name,dateRange);
+  const cw=640,gap=58,x0=(3200-(4*cw+3*gap))/2,y0=340;
+  for(let i=0;i<12;i++){const x=x0+(i%4)*(cw+gap),y=y0+Math.floor(i/4)*(cw+gap+52);
+   cell(ims[i],x,y,cw,cw,i,mon(sel[i]))}
+ }else if(k==="arc"){
+  const hero=pics[pics.length-1],rest=spread(pics,5);
+  const ims=await Promise.all([hero,...rest].map(m=>load(m.dataURL)));
+  chrome(3200,2400,"The story of "+name,dateRange);
+  cover(ctx,ims[0],160,320,2880,1260);
+  ctx.strokeStyle="rgba(46,42,36,.18)";ctx.lineWidth=2;ctx.strokeRect(160,320,2880,1260);
+  const sw=500,sg=70,sx=(3200-(5*sw+4*sg))/2,sy=1690;
+  for(let i=0;i<5;i++)cell(ims[i+1],sx+i*(sw+sg),sy,sw,sw,i,fmt(rest[i].date));
+ }else{
+  const sel=spread(pics,6);const ims=await Promise.all(sel.map(m=>load(m.dataURL)));
+  chrome(3200,2560,"The firsts of "+name,dateRange);
+  const cw=920,ch=830,cg=80,x0=(3200-(3*cw+2*cg))/2,y0=330;
+  for(let i=0;i<6;i++){const x=x0+(i%3)*(cw+cg),y=y0+Math.floor(i/3)*(ch+120);
+   const t=(sel[i].title||"").length>26?sel[i].title.slice(0,24)+"…":sel[i].title;
+   cell(ims[i],x,y,cw,ch,i,t)}}
+ $("#ksPrev").innerHTML="";
+ const pv=new Image();pv.style.cssText="width:100%;border-radius:14px;border:1px solid var(--line);margin-top:16px";pv.src=cv.toDataURL("image/jpeg",.85);
+ $("#ksPrev").appendChild(pv);
+ cv.toBlob(b=>{const a=document.createElement("a");a.href=URL.createObjectURL(b);
+  a.download="the-first-year-of-"+String(name).toLowerCase().replace(/[^a-z0-9]+/g,"-")+".png";
+  a.className="btn btn-ghost mt";a.textContent="⬇ Download the print file (3200px PNG)";
+  $("#ksDl").innerHTML="";$("#ksDl").appendChild(a)},"image/png")};
+/* ============ FIRST-YEAR BLANKET ============ */
+RENDER.blanket=()=>{nav("more");const p=S.d.profile;
+ $("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="go('keepsake')">‹</button><h2 class="serif">The first-year blanket</h2></div>
+  <p class="lede">Every three months they outgrew another drawer of onesies. Instead of boxing them away, the softest squares are unstitched and sewn again - into one blanket that keeps the whole year.</p>
+  <div class="ks-gallery">
+   ${[["keepsakes/blanket-patchwork.jpg","The Patchwork","Twenty squares, one from every outfit that mattered - the coming-home one always gets the center."],
+      ["keepsakes/blanket-star.jpg","The North Star","A single star appliquéd from the softest sleepsuit, ringed by everything else."],
+      ["keepsakes/blanket-months.jpg","The Twelve Months","Rows that shift in colour the way the year did - sage to terracotta to rose."]].map(([src,t,d])=>`
+   <figure class="ks-fig"><img src="${src}" alt="${t} - original sample design"><figcaption><b class="serif">${t}</b><span>${d}</span></figcaption></figure>`).join("")}
+  </div>
+  <div class="notice"><b>Original design concepts</b>These three are our own sample designs - the making service is still being stitched together. When it opens: you send the clothes, the blanket comes back.</div>
+  ${p.birthDate?`<button class="btn btn-terra mt" onclick="blanketReminder()">🧶 Remind me to save the outgrown clothes</button>`
+  :`<div class="notice"><b>When they arrive</b>Welcome them from the Today screen, and this becomes a reminder near their first birthday.</div>`}
+ </div>`};
+window.blanketReminder=()=>{const d=addDays(S.d.profile.birthDate,335).toISOString().slice(0,10);
+ if(S.d.reminders.some(r=>r.title.toLowerCase().indexOf("blanket")>-1))return toast("Already tucked into your reminders");
+ S.d.reminders.push({id:uid(),title:"The first-year blanket - gather the outgrown onesies",date:d,week:null,done:false,auto:true});
+ S.save();mirrorNotify();toast("Tucked into reminders for "+fmt(d))};
+/* ============ LITTLE HANDS, LITTLE FEET ============ */
+RENDER.prints=()=>{nav("more");const p=S.d.profile;
+ $("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="go('keepsake')">‹</button><h2 class="serif">Little hands, little feet</h2></div>
+  <p class="lede">Ten tiny fingers, ten tiny toes - pressed into clay or cast in plaster before they grow. The most-loved keepsake on every baby shelf, for a reason.</p>
+  <figure class="ks-fig" style="margin-top:18px"><img src="keepsakes/impressions.jpg" alt="Framed hand and foot plaster impressions - sample design"><figcaption><b class="serif">The First Impressions</b><span>Hand and foot, pressed in the newborn weeks, framed in oak on linen.</span></figcaption></figure>
+  <div class="card">
+   <b class="serif" style="font-size:1.05rem">Three ways to take them - all real, all today</b>
+   ${[["🖐","Inkless print kit","A magic-paper wipe kit: no ink ever touches the skin, the print appears like a small miracle. Ten minutes, bath-time calm."],
+      ["🥣","Salt dough at home","One cup flour, half a cup of salt, half a cup of water. Press, then bake low for an hour. Rustic, free, and somehow the one grandparents cry over."],
+      ["🏺","A casting kit","Powder to plaster in the bucket it comes with - a true 3D cast of the exact wrinkle of their knuckles. Best before six months, while they still curl."]].map(([i,t,d])=>`
+   <div class="listrow" style="cursor:default"><div class="ic">${i}</div><div><b>${t}</b><small style="line-height:1.5">${d}</small></div></div>`).join("")}
+  </div>
+  <div class="notice"><b>Design concept, honestly labelled</b>The framed impression set is one of our sample designs - the kit shop is still coming. Everything above works with any kit you already have.</div>
+  <button class="btn btn-terra mt" onclick="go('capPhoto','photo')">📷 Keep their prints in the story</button>
+ </div>`};
+/* ============ THE BIRTH POSTER ============ */
+RENDER.poster=()=>{nav("more");const p=S.d.profile;
+ $("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="go('keepsake')">‹</button><h2 class="serif">The birth poster</h2></div>
+  <p class="lede">The Scandinavian idea parents fell for: their name, their first measurements, and a fine hairline exactly their birth length - typeset like a gallery print. Compose yours here, on this device.</p>
+  <div class="card">
+   <label class="f">Their name</label><input type="text" id="bpName" value="${p.babyName==="little one"?"":esc(p.babyName)}" placeholder="The name you chose">
+   <label class="f">Date of birth</label><input type="date" id="bpDate" value="${p.birthDate||""}">
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div><label class="f">Time (optional)</label><input type="text" id="bpTime" placeholder="03:42"></div>
+    <div><label class="f">Place (optional)</label><input type="text" id="bpPlace" placeholder="Dubai"></div>
+   </div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div><label class="f">Weight (kg)</label><input type="text" id="bpWt" inputmode="decimal" placeholder="3.4"></div>
+    <div><label class="f">Length (cm)</label><input type="text" id="bpLen" inputmode="decimal" placeholder="50"></div>
+   </div>
+   <button class="btn btn-terra mt" onclick="buildPoster()">Compose the poster</button>
+   <div id="bpPrev"></div><div id="bpDl"></div>
+  </div>
+  <div class="notice"><b>The scale is real</b>Print it at 60×90 cm and the hairline beneath the moon measures exactly their birth length. Any print shop can do the rest.</div>
+ </div>`};
+window.buildPoster=async()=>{try{await document.fonts.ready}catch(e){}
+ const v=id=>$(id).value.trim();
+ const name=v("#bpName")||"little one",dt=v("#bpDate"),tm=v("#bpTime"),pl=v("#bpPlace"),wt=v("#bpWt"),ln=parseFloat(v("#bpLen"))||0;
+ const cv=document.createElement("canvas");cv.width=2480;cv.height=3508;const ctx=cv.getContext("2d");
+ ctx.fillStyle="#FAF4E8";ctx.fillRect(0,0,2480,3508);
+ ctx.fillStyle="#FFFDF8";ctx.fillRect(70,70,2340,3368);
+ ctx.strokeStyle="rgba(46,42,36,.4)";ctx.lineWidth=3;ctx.strokeRect(46,46,2388,3416);
+ ctx.textAlign="center";
+ try{ctx.letterSpacing="14px"}catch(e){}
+ ctx.fillStyle="#C4673F";ctx.font="600 40px Inter, sans-serif";
+ ctx.fillText("THE STORY OF HOW YOU BEGAN",1240,300);
+ try{ctx.letterSpacing="0px"}catch(e){}
+ ctx.fillStyle="#2E2A24";ctx.font="italic 500 190px Fraunces, Georgia, serif";
+ ctx.fillText(name,1240,660);
+ ctx.strokeStyle="rgba(46,42,36,.25)";ctx.lineWidth=2;
+ ctx.beginPath();ctx.moveTo(840,780);ctx.lineTo(1640,780);ctx.stroke();
+ const cx=1240,cy=1450,R=340;
+ ctx.fillStyle="#C89B5A";ctx.beginPath();ctx.arc(cx,cy,R,0,7);ctx.fill();
+ ctx.fillStyle="#FFFDF8";ctx.beginPath();ctx.arc(cx+150,cy-90,R*.92,0,7);ctx.fill();
+ ctx.fillStyle="#C89B5A";
+ const star=(x,y,s)=>{ctx.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4,r=i%2?s:s*.32;ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a))}ctx.closePath();ctx.fill()};
+ star(cx-500,cy-330,42);star(cx+430,cy-390,30);star(cx+520,cy+180,36);star(cx-420,cy+320,26);star(cx+40,cy-470,22);
+ if(ln>0){const lw=Math.round(ln*10*2480/600);
+  ctx.strokeStyle="#2E2A24";ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(1240-lw/2,1980);ctx.lineTo(1240+lw/2,1980);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(1240-lw/2,1960);ctx.lineTo(1240-lw/2,2000);ctx.moveTo(1240+lw/2,1960);ctx.lineTo(1240+lw/2,2000);ctx.stroke();
+  ctx.fillStyle="#6B6357";ctx.font="400 36px Inter, sans-serif";
+  ctx.fillText("their birth length - "+ln+" cm, when printed at 60×90 cm",1240,2050)}
+ const stats=[[dt?fmt(dt):"",tm],[wt?wt+" kg":"",ln?ln+" cm":""]].map(p2=>p2.filter(Boolean).join("  ·  ")).filter(Boolean);
+ ctx.fillStyle="#2E2A24";ctx.font="500 74px Fraunces, Georgia, serif";
+ stats.forEach((s,i)=>ctx.fillText(s,1240,2300+i*110));
+ if(pl){ctx.fillStyle="#6B6357";ctx.font="italic 400 52px Fraunces, Georgia, serif";ctx.fillText(pl,1240,2300+stats.length*110)}
+ try{ctx.letterSpacing="10px"}catch(e){}
+ ctx.fillStyle="#8A8172";ctx.font="600 34px Inter, sans-serif";
+ ctx.fillText("BABY CHRONICLES",1240,3220);
+ try{ctx.letterSpacing="0px"}catch(e){}
+ $("#bpPrev").innerHTML="";
+ const pv=new Image();pv.style.cssText="width:100%;border-radius:14px;border:1px solid var(--line);margin-top:16px";pv.src=cv.toDataURL("image/jpeg",.85);
+ $("#bpPrev").appendChild(pv);
+ cv.toBlob(b=>{const a=document.createElement("a");a.href=URL.createObjectURL(b);
+  a.download="birth-poster-"+name.toLowerCase().replace(/[^a-z0-9]+/g,"-")+".png";
+  a.className="btn btn-ghost mt";a.textContent="⬇ Download the print file (A-format PNG)";
+  $("#bpDl").innerHTML="";$("#bpDl").appendChild(a)},"image/png")};
+/* ============ THE MEMORY BOX ============ */
+const BOXITEMS=[["bracelet","The hospital bracelet"],["outfit","The coming-home outfit"],["hair","A lock of hair from the first trim"],["shoes","Their first shoes"],["card","The card that made you cry"],["paper","A front page from their birth day"],["toy","The first toy they chose themselves"],["letter","The first letter you wrote them, printed"]];
+RENDER.mbox=()=>{nav("more");const p=S.d.profile;
+ S.d.boxList=S.d.boxList||{};
+ const got=BOXITEMS.filter(([k])=>S.d.boxList[k]).length;
+ $("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="go('keepsake')">‹</button><h2 class="serif">The memory box</h2></div>
+  <p class="lede">Some things won't fit in a photo. The bracelet, the booties, the lock of hair - a wooden box that keeps the small physical evidence of the year.</p>
+  <figure class="ks-fig" style="margin-top:18px"><img src="keepsakes/memorybox.jpg" alt="A wooden keepsake box of first-year treasures - sample design"><figcaption><b class="serif">The First-Year Box</b><span>Engraved oak, lined in linen, filled slowly over twelve months.</span></figcaption></figure>
+  <div class="card">
+   <div style="display:flex;align-items:baseline;justify-content:space-between"><b class="serif" style="font-size:1.05rem">The box list</b><small style="color:var(--terra);font-weight:600">${got} of ${BOXITEMS.length} saved away</small></div>
+   <p style="font-size:.8rem;color:var(--ink2);line-height:1.6;margin-top:6px">Tick them off as they go into the box. Kept on this device, like everything else.</p>
+   ${BOXITEMS.map(([k,t])=>`
+   <div class="listrow" onclick="toggleBox('${k}')"><div class="ic" style="${S.d.boxList[k]?"background:var(--sage-soft)":""}">${S.d.boxList[k]?"✓":"·"}</div><div><b style="${S.d.boxList[k]?"text-decoration:line-through;color:var(--ink2)":""}">${t}</b></div><span class="go">${S.d.boxList[k]?"":""}</span></div>`).join("")}
+  </div>
+  <div class="notice"><b>Design concept, honestly labelled</b>The engraved box is one of our sample designs - the shop is still coming. The list, like the story, is yours today.</div>
+ </div>`};
+window.toggleBox=k=>{S.d.boxList=S.d.boxList||{};S.d.boxList[k]=!S.d.boxList[k];S.save();RENDER.mbox()};
+
 window.printBook=()=>{const p=S.d.profile;
  const pub=S.d.moments.filter(m=>!m.vault).sort((a,b)=>new Date(a.date)-new Date(b.date));
  if(!pub.length)return toast("Capture a moment first");
@@ -927,7 +1160,7 @@ RENDER.more=()=>{nav("more");const p=S.d.profile;
   <div class="eyebrow">Baby Chronicles</div>
   <h1 class="h-display" style="font-size:1.6rem">${esc(p.name)} &amp; ${esc(p.babyName)}</h1>
   <div class="card">
-   ${[["vault","🔒","Medical vault","PIN-locked, never shared"],["letters","💌","Letters to the baby","Sealed until their day"],["circle","👪","Family circle","Per-chapter, invite-only"],["reminders","🗓","Reminders",S.d.settings.paused?"Paused":"On, gently"],["keepsake","🎞","The keepsake","Film & book for the first birthday"]].map(([k,i,t,s])=>`
+   ${[["vault","🔒","Medical vault","PIN-locked, never shared"],["letters","💌","Letters to the baby","Sealed until their day"],["circle","👪","Family circle","Per-chapter, invite-only"],["reminders","🗓","Reminders",S.d.settings.paused?"Paused":"On, gently"],["keepsake","🎞","The keepsakes","Film, book, wall collage, blanket & more"]].map(([k,i,t,s])=>`
    <div class="listrow" onclick="go('${k}')"><div class="ic">${i}</div><div><b>${t}</b><small>${s}</small></div><span class="go">›</span></div>`).join("")}
   </div>
   <div class="card">
