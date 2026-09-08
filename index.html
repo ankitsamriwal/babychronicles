@@ -154,6 +154,24 @@ body.care .progressbar i{background:var(--sage)}
 .mood{font-size:1.4rem;padding:8px;border-radius:14px;border:1px solid transparent;cursor:pointer}
 .mood.on{border-color:var(--terra);background:var(--paper)}
 .toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--cream);padding:12px 22px;border-radius:999px;font-size:.82rem;z-index:99;animation:fade .3s;white-space:nowrap}
+#printbook{display:none}
+@media print{body.printing #phone,body.printing .toast,body.printing .film{display:none!important}
+body.printing{background:#fff!important}
+body.printing #printbook{display:block!important;color:#2B2118;font-family:var(--sans);font-size:12px;line-height:1.6}
+body.printing #printbook h1,body.printing #printbook h2,body.printing #printbook h3{font-family:var(--serif);font-weight:500}
+body.printing #printbook .pb-cover{padding:70px 24px 50px;text-align:center;page-break-after:always}
+body.printing #printbook .pb-cover h1{font-size:34px;margin:14px 0 10px}
+body.printing #printbook .pb-cover p{font-size:13px;color:#6B5D4F;font-style:italic}
+body.printing #printbook .pb-kicker{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#B0713E}
+body.printing #printbook .pb-meta{font-size:10px;color:#8A7E6E;margin-top:18px}
+body.printing #printbook .pb-ch{page-break-before:always;padding:20px 8px}
+body.printing #printbook .pb-ch h2{font-size:24px;margin:8px 0 18px}
+body.printing #printbook .pb-m{margin-bottom:20px;page-break-inside:avoid}
+body.printing #printbook .pb-d{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#8A7E6E;margin-bottom:4px}
+body.printing #printbook .pb-m h3{font-size:15px;margin:0 0 6px}
+body.printing #printbook .pb-m p{font-size:11.5px;color:#4A4036;white-space:pre-wrap}
+body.printing #printbook .pb-m img{max-width:100%;border-radius:8px;margin-top:8px}
+body.printing #printbook .pb-end{text-align:center;font-style:italic;color:#8A7E6E;font-size:11px;margin-top:40px}}
 .film{position:fixed;inset:0;background:#0F0D0A;color:#EFE7D6;z-index:200;display:flex;flex-direction:column;animation:fade .5s ease}
 .fprog{display:flex;gap:6px;padding:18px 20px 0}
 .fprog i{flex:1;height:3px;border-radius:99px;background:rgba(239,231,214,.18)}
@@ -249,7 +267,7 @@ const S={
   load(){try{this.d=JSON.parse(localStorage.getItem(LS))}catch(e){this.d=null}
     if(!this.d)this.d={profile:null,moments:[],letters:[],vaultPin:null,reminders:[],settings:{paused:false,care:false},circle:[],share:{t1:false,t2:false,t3:false,fy:false},seen:{}};
   },
-  save(){try{localStorage.setItem(LS,JSON.stringify(this.d))}catch(e){try{toast("Storage is nearly full - export everything from More, then delete a few large photos")}catch(_){}}},
+  save(){try{localStorage.setItem(LS,JSON.stringify(this.d))}catch(e){try{toast("Storage is nearly full - export everything from More, then delete a few large photos")}catch(_){}}mirrorNotify()},
   reset(){localStorage.removeItem(LS);location.reload()}
 };
 S.load();
@@ -274,6 +292,29 @@ function stage(){const p=S.d.profile;return p.birthDate?"post":(curWeek()>=40?"d
 function trimesterOf(w){return w<=13?1:w<=27?2:3}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2400)}
+/* ============ NOTIFICATIONS ============ */
+function dueReminders(){const t=new Date().toISOString().slice(0,10);
+ return S.d.reminders.filter(r=>!r.done&&r.date<=t)}
+function mirrorNotify(){if(typeof caches==="undefined"||!("Notification"in window)||Notification.permission!=="granted")return;
+ try{caches.open("bc-notify").then(c=>c.put("/due-reminders.json",new Response(JSON.stringify({paused:!!(S.d.settings&&S.d.settings.paused),items:dueReminders().map(r=>({id:r.id,title:r.title}))}))))}catch(e){}}
+function notifyDue(){if(!("Notification"in window)||Notification.permission!=="granted"||!S.d.profile)return;
+ if(S.d.settings&&S.d.settings.paused)return;
+ const t=new Date().toISOString().slice(0,10);let fired=false;
+ dueReminders().forEach(r=>{const k="notif:"+r.id+":"+t;if(S.d.seen[k])return;S.d.seen[k]=1;fired=true;
+  const show=reg=>{if(reg&&reg.showNotification)reg.showNotification("Baby Chronicles",{body:r.title,tag:r.id,icon:"icon-192.png",data:{url:"./?rem=1"}});
+   else new Notification("Baby Chronicles",{body:r.title,tag:r.id})};
+  if("serviceWorker"in navigator)navigator.serviceWorker.ready.then(show).catch(()=>{});else show(null)});
+ if(fired)S.save()}
+function notifCard(){if(!("Notification"in window))return"";
+ const pm=Notification.permission;
+ if(pm==="granted")return`<div class="notice"><b>Notifications on</b>Nudges arrive when you open Baby Chronicles - and in the background once the app is installed on your home screen.</div>`;
+ if(pm==="denied")return`<div class="notice"><b>Notifications are off</b>The browser is blocking them - allow notifications for this site in its settings to get nudges.</div>`;
+ return`<div class="card" style="display:flex;gap:14px;align-items:center"><div class="ic" style="flex:none">🔔</div>
+  <div style="flex:1;min-width:0"><b>Gentle nudges</b><br><small style="color:var(--ink2)">A quiet notification when something is due - never more than that.</small></div>
+  <button class="btn btn-terra" style="flex:none;width:auto;padding:10px 18px;font-size:.8rem" onclick="askNotif()">Turn on</button></div>`}
+window.askNotif=()=>{Notification.requestPermission().then(pm=>{if(pm==="granted"){mirrorNotify();notifyDue();
+  if("serviceWorker"in navigator)navigator.serviceWorker.ready.then(reg=>{if(reg.periodicSync)reg.periodicSync.register("bc-reminders",{minInterval:43200000}).catch(()=>{})}).catch(()=>{});
+  toast("Nudges on - gently, always")}go('reminders')}).catch(()=>{})};
 function hash(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return" h"+h}
 /* ============ ROUTER & NAV ============ */
 const NAV=[
@@ -405,7 +446,7 @@ RENDER.today=()=>{nav("today");const p=S.d.profile,w=curWeek(),st=stage();
 function sizeEmoji(w){const e={4:"·",5:"•",6:"🫘",7:"🫐",8:"🍓",9:"🍒",10:"🍓",11:"🍋",12:"🍑",13:"🍋",14:"🍑",15:"🍎",16:"🥑",17:"🍐",18:"🫑",19:"🥭",20:"🍌",21:"🥕",22:"🥭",23:"🍊",24:"🌽",25:"🥬",26:"🥬",27:"🧅",28:"🥥",29:"🎃",30:"🥬",31:"🍍",32:"🍈",33:"🍈",34:"🍈",35:"🥬",36:"🥬",37:"🎃",38:"🍉",39:"🍉",40:"🍉",41:"🍉",42:"👶"};return e[w]||"🍉"}
 function momentRow(m){const ic={note:"✏️",photo:"📷",bump:"🤰",scan:"🩻",report:"📄",milestone:"⭐",kick:"👣"}[m.type]||"✏️";
  return`<div class="moment" onclick="go('moment','${m.id}')"><div class="thumb">${m.dataURL?`<img src="${m.dataURL}">`:ic}</div>
- <div class="mm"><b>${esc(m.title)}</b><small>${fmt(m.date)}${m.week?" · week "+m.week:""}</small>${m.text?`<p>${esc(m.text)}</p>`:""}</div></div>`}
+ <div class="mm"><b>${esc(m.title)}</b><small>${fmt(m.date)}${m.week?" · week "+m.week:""}${m.by&&m.by!==S.d.profile.name?" · "+esc(m.by):""}</small>${m.text?`<p>${esc(m.text)}</p>`:""}</div></div>`}
 /* ============ BABY ARRIVED ============ */
 RENDER.arrived=()=>{$("#nav").style.display="none";const p=S.d.profile;$("#app").innerHTML=`
  <div class="screen" style="padding-top:48px">
@@ -420,7 +461,7 @@ RENDER.arrived=()=>{$("#nav").style.display="none";const p=S.d.profile;$("#app")
 window.saveArrived=()=>{const d=$("#aDate").value;if(!d)return toast("Pick the day they arrived");
  const n=$("#aName").value.trim();S.d.profile.birthDate=d;if(n)S.d.profile.babyName=n;
  if(!S.d.reminders.some(r=>r.auto&&r.title.indexOf("Six-week")>-1))S.d.reminders.push({id:uid(),title:"Six-week check for mother and baby",date:addDays(d,42).toISOString().slice(0,10),week:null,done:false,auto:true});
- S.d.moments.push({id:uid(),type:"milestone",date:d,week:curWeek(),title:"First breath",vault:false});
+ S.d.moments.push({id:uid(),type:"milestone",date:d,week:curWeek(),title:"First breath",vault:false,by:S.d.profile.name});
  S.save();go('today');toast("Welcome to the world, "+S.d.profile.babyName+" 🤍")};
 /* ============ CAPTURE ============ */
 RENDER.capture=()=>{nav("capture");$("#app").innerHTML=`
@@ -456,7 +497,7 @@ RENDER.capNote=()=>{$("#nav").style.display="none";$("#app").innerHTML=`
 let _mood=null;
 window.pickMood=(el,m)=>{document.querySelectorAll(".mood").forEach(x=>x.classList.remove("on"));el.classList.add("on");_mood=m};
 window.saveNote=()=>{const t=$("#nText").value.trim();if(!t)return toast("Write a line first 🤍");
- S.d.moments.push({id:uid(),type:"note",date:$("#nDate").value,week:curWeek(),title:$("#nTitle").value.trim()||t.slice(0,42)+(t.length>42?"…":""),text:t,mood:_mood,vault:false});
+ S.d.moments.push({id:uid(),type:"note",date:$("#nDate").value,week:curWeek(),title:$("#nTitle").value.trim()||t.slice(0,42)+(t.length>42?"…":""),text:t,mood:_mood,vault:false,by:S.d.profile.name});
  S.save();_mood=null;go('today');toast("Kept, forever")};
 let _img=null;
 RENDER.capPhoto=type=>{$("#nav").style.display="none";_img=null;$("#app").innerHTML=`
@@ -479,7 +520,7 @@ function shrinkImg(f,cb){const url=URL.createObjectURL(f);const im=new Image();
 window.loadImg=inp=>{const f=inp.files[0];if(!f)return;
  shrinkImg(f,u=>{_img=u;$("#pPrev").innerHTML=`<img src="${_img}" style="width:100%;border-radius:18px;margin-top:14px">`})};
 window.savePhoto=type=>{if(!_img)return toast("Choose a photo first");
- S.d.moments.push({id:uid(),type,date:$("#pDate").value,week:curWeek(),title:$("#pTitle").value.trim()||(type==="bump"?"Bump, week "+(curWeek()||""):"A moment"),dataURL:_img,vault:false});
+ S.d.moments.push({id:uid(),type,date:$("#pDate").value,week:curWeek(),title:$("#pTitle").value.trim()||(type==="bump"?"Bump, week "+(curWeek()||""):"A moment"),dataURL:_img,vault:false,by:S.d.profile.name});
  S.save();go('timeline');toast("Added to the story")};
 RENDER.capDoc=kind=>{$("#nav").style.display="none";_img=null;$("#app").innerHTML=`
  <div class="screen" style="padding-top:38px">
@@ -505,7 +546,7 @@ window.loadDoc=(inp,kind)=>{const f=inp.files[0];if(!f)return;
   $("#dForm").style.display="block";if(guess!==kind)toast("Looks like a "+guess+" - filed as "+kind)})};
 window.saveDoc=kind=>{if(!_img)return toast("Choose the document photo first");
  const type=$("#dType .chip.on").textContent;
- S.d.moments.push({id:uid(),type:kind,date:new Date().toISOString().slice(0,10),week:parseInt($("#dWeek").value)||curWeek(),title:type,text:$("#dNotes").value.trim(),clinic:$("#dClinic").value.trim(),dataURL:_img,vault:$("#dVault").classList.contains("on")});
+ S.d.moments.push({id:uid(),type:kind,date:new Date().toISOString().slice(0,10),week:parseInt($("#dWeek").value)||curWeek(),title:type,text:$("#dNotes").value.trim(),clinic:$("#dClinic").value.trim(),dataURL:_img,vault:$("#dVault").classList.contains("on"),by:S.d.profile.name});
  S.save();go($("#dVault").classList.contains("on")?'vault':'timeline');toast("Filed safely")};
 RENDER.capMilestone=()=>{$("#nav").style.display="none";$("#app").innerHTML=`
  <div class="screen" style="padding-top:38px">
@@ -516,7 +557,7 @@ RENDER.capMilestone=()=>{$("#nav").style.display="none";$("#app").innerHTML=`
   <div class="btn-row"><button class="btn btn-ghost" onclick="go('capture')">Discard</button><button class="btn btn-terra" onclick="saveMilestone()">Mark it</button></div>
  </div>`};
 window.saveMilestone=()=>{const c=$("#msCustom").value.trim();const t=c||$("#msChips .chip.on").textContent;
- S.d.moments.push({id:uid(),type:"milestone",date:$("#msDate").value,week:curWeek(),title:t,vault:false});
+ S.d.moments.push({id:uid(),type:"milestone",date:$("#msDate").value,week:curWeek(),title:t,vault:false,by:S.d.profile.name});
  S.save();go('timeline');toast("⭐ Marked in the story")};
 let _kick=null,_kickT=null;
 RENDER.kicks=()=>{$("#nav").style.display="none";_kick={n:0,t0:Date.now()};$("#app").innerHTML=`
@@ -536,13 +577,13 @@ RENDER.kicks=()=>{$("#nav").style.display="none";_kick={n:0,t0:Date.now()};$("#a
 window.kickTap=()=>{if(!_kick)return;_kick.n++;$("#kN").textContent=_kick.n};
 window.saveKicks=()=>{if(!_kick||!_kick.n)return toast("Tap each kick first");
  const mins=Math.max(1,Math.round((Date.now()-_kick.t0)/60000));
- S.d.moments.push({id:uid(),type:"kick",date:new Date().toISOString().slice(0,10),week:curWeek(),title:"Kick counting · "+_kick.n+" kicks in "+mins+" min",vault:false});
+ S.d.moments.push({id:uid(),type:"kick",date:new Date().toISOString().slice(0,10),week:curWeek(),title:"Kick counting · "+_kick.n+" kicks in "+mins+" min",vault:false,by:S.d.profile.name});
  clearInterval(_kickT);S.save();_kick=null;go('timeline');toast("Session kept")};
 RENDER.moment=id=>{const m=S.d.moments.find(x=>x.id===id);if(!m)return go('timeline');$("#nav").style.display="none";
  $("#app").innerHTML=`
  <div class="screen" style="padding-top:38px">
   <div class="header"><button class="back" onclick="history.length?go('timeline'):go('today')">‹</button><h2 class="serif" style="font-size:1.2rem">${esc(m.title)}</h2></div>
-  <p class="lede" style="margin-top:2px">${fmt(m.date)}${m.week?" · week "+m.week:""}${m.clinic?" · "+esc(m.clinic):""}</p>
+  <p class="lede" style="margin-top:2px">${fmt(m.date)}${m.week?" · week "+m.week:""}${m.clinic?" · "+esc(m.clinic):""}${m.by?" · by "+esc(m.by):""}</p>
   ${m.dataURL?`<img src="${m.dataURL}" style="width:100%;border-radius:20px;margin-top:14px">`:""}
   ${m.mood?`<div style="font-size:1.8rem;margin-top:14px">${m.mood}</div>`:""}
   ${m.text?`<div class="card"><p style="font-size:.92rem;line-height:1.7;white-space:pre-wrap">${esc(m.text)}</p></div>`:""}
@@ -720,6 +761,7 @@ RENDER.reminders=()=>{nav("more");const rs=[...S.d.reminders].sort((a,b)=>a.date
   <div class="header"><button class="back" onclick="go('more')">‹</button><h2 class="serif">Reminders</h2></div>
   <p class="lede">Seeded from your dates, nudged by events - never noisy.</p>
   ${S.d.settings.paused?'<div class="notice"><b>Everything is paused</b>All reminders are silent. Switch them back on whenever you are ready.</div>':""}
+  ${notifCard()}
   ${rs.map(r=>`<div class="listrow"><div class="ic">${r.done?"✅":"🗓"}</div>
    <div style="${r.done?"opacity:.5;text-decoration:line-through":""}"><b>${esc(r.title)}</b><small>${fmt(r.date)}${r.week?" · week "+r.week:""}</small></div>
    <span class="go" onclick="toggleRem('${r.id}')">${r.done?"↺":"✓"}</span></div>`).join("")}
@@ -768,14 +810,43 @@ RENDER.circle=()=>{nav("more");const p=S.d.profile;
   <label class="f">Add someone</label>
   <input type="text" id="cName" placeholder="Name"><input type="text" id="cRel" placeholder="e.g. Nani, Dadi, best friend">
   <button class="btn btn-ghost mt" onclick="addCircle()">Add to circle</button>
-  <div class="card"><b class="serif">What they can see</b>
+  <div class="card"><b class="serif">Write together</b>
+   <p style="font-size:.8rem;color:var(--ink2);line-height:1.6;margin-top:8px">No accounts, no servers - everything stays on each of your devices. Send your chronicle to your partner; they merge it, and send theirs back. Only the chapters switched on below go in. The vault and sealed letters never leave this device.</p>
+   <div class="btn-row" style="margin-top:14px"><button class="btn btn-terra" onclick="shareChronicle()">Send my chronicle</button><button class="btn btn-ghost" onclick="document.getElementById('impFile').click()">Merge an update</button></div>
+   <input type="file" id="impFile" accept="application/json,.json" style="display:none" onchange="importChronicle(this)">
+  </div>
+  <div class="card"><b class="serif">What goes into a shared chronicle</b>
    ${[["t1","Chapter one - the first whispers"],["t2","Chapter two - the golden months"],["t3","Chapter three - the home straight"],["fy","The first year"]].map(([k,l])=>`
     <div class="listrow" onclick="S.d.share['${k}']=!S.d.share['${k}'];S.save();go('circle')"><div><b style="font-size:.85rem">${l}</b></div><div class="switch ${S.d.share[k]?'on':''}"></div></div>`).join("")}
-   <div class="notice" style="margin-top:12px"><b>Invite-only at launch</b>Circle members will receive a personal link to read shared chapters in the browser - nothing public, nothing searchable.</div>
   </div>
  </div>`};
 window.addCircle=()=>{const n=$("#cName").value.trim();if(!n)return toast("Who is it?");
  S.d.circle.push({name:n,rel:$("#cRel").value.trim()||"family"});S.save();go('circle');toast(n+" added to the circle")};
+window.shareChronicle=()=>{const p=S.d.profile,now=new Date().toISOString().slice(0,10);
+ const keep=m=>{if(m.vault)return false;const w=m.week||weeksBetween(conception(),m.date)+1;
+  const key=p.birthDate&&m.date>=p.birthDate?"fy":w<=13?"t1":w<=27?"t2":"t3";return S.d.share[key]};
+ const moments=S.d.moments.filter(keep);
+ const letters=S.d.letters.filter(l=>l.sealedUntil<=now);
+ if(!moments.length&&!letters.length)return toast("Switch a chapter on below first");
+ const pack={app:"baby-chronicles",kind:"merge-pack",v:1,from:p.name,at:new Date().toISOString(),
+  moments,letters,reminders:S.d.reminders.filter(r=>!r.auto)};
+ const file=new File([JSON.stringify(pack)],"baby-chronicles-from-"+p.name.toLowerCase().replace(/[^a-z0-9]+/g,"-")+".json",{type:"application/json"});
+ if(navigator.canShare&&navigator.canShare({files:[file]}))navigator.share({files:[file],title:"Baby Chronicles"}).catch(()=>{});
+ else{const a=document.createElement("a");a.href=URL.createObjectURL(file);a.download=file.name;a.click()}
+ toast(moments.length+" moment"+(moments.length===1?"":"s")+" wrapped up for your partner")};
+window.importChronicle=inp=>{const f=inp.files[0];if(!f)return;const r=new FileReader();
+ r.onload=e=>{let d;try{d=JSON.parse(e.target.result)}catch(_){return toast("That file isn't a chronicle")};
+  if(!d||!Array.isArray(d.moments))return toast("That file isn't a chronicle");
+  const from=d.from||"your partner";let nm=0,nl=0,nr=0;
+  const ids=new Set(S.d.moments.map(m=>m.id));
+  d.moments.forEach(m=>{if(m&&m.id&&!ids.has(m.id)){S.d.moments.push(m);nm++}});
+  const lids=new Set(S.d.letters.map(l=>l.id));(d.letters||[]).forEach(l=>{if(l&&l.id&&!lids.has(l.id)){S.d.letters.push(l);nl++}});
+  const rids=new Set(S.d.reminders.map(x=>x.id));(d.reminders||[]).forEach(x=>{if(x&&x.id&&!rids.has(x.id)){S.d.reminders.push(x);nr++}});
+  if(d.from&&d.from!==S.d.profile.name&&!S.d.circle.some(c=>c.name===d.from))S.d.circle.push({name:d.from,rel:"co-author"});
+  S.save();go('circle');
+  const parts=[nm?nm+" new moment"+(nm>1?"s":""):"",nl?nl+" letter"+(nl>1?"s":""):"",nr?nr+" reminder"+(nr>1?"s":""):""].filter(Boolean);
+  toast(parts.length?"Merged "+from+"'s chronicle - "+parts.join(", "):"Already up to date with "+from+"'s chronicle")};
+ r.readAsText(f)};
 /* ============ KEEPSAKE ============ */
 RENDER.keepsake=()=>{nav("more");const p=S.d.profile,n=S.d.moments.filter(m=>!m.vault).length;
  $("#app").innerHTML=`
@@ -790,10 +861,39 @@ RENDER.keepsake=()=>{nav("more");const p=S.d.profile,n=S.d.moments.filter(m=>!m.
   </div>
   <div class="card" style="text-align:center;padding:30px 24px">
    <div style="font-size:2.2rem">📔</div>
-   <h3 class="serif" style="font-weight:400;font-size:1.2rem;margin-top:8px">The Linen Book</h3>
-   <p style="font-size:.82rem;color:var(--ink2);line-height:1.7;margin-top:8px">The same story, printed and bound - a grandparents' edition too. Print fulfilment arrives with the live app.</p>
+   <h3 class="serif" style="font-weight:400;font-size:1.2rem;margin-top:8px">The Keepsake Book</h3>
+   <p style="font-size:.82rem;color:var(--ink2);line-height:1.7;margin-top:8px">The same story, typeset like a book - cover, chapters, photos, and the letters that have opened. Print it or save it as a PDF, whenever you like.</p>
+   <button class="btn btn-ghost mt" onclick="printBook()">🖨 Print / save as PDF</button>
   </div>
  </div>`};
+window.printBook=()=>{const p=S.d.profile;
+ const pub=S.d.moments.filter(m=>!m.vault).sort((a,b)=>new Date(a.date)-new Date(b.date));
+ if(!pub.length)return toast("Capture a moment first");
+ const ic={note:"✏️",photo:"📷",bump:"🤰",scan:"🩻",report:"📄",milestone:"⭐",kick:"👣"};
+ const pre=m=>!(p.birthDate&&m.date>=p.birthDate);
+ const wk=m=>m.week||weeksBetween(conception(),m.date)+1;
+ const chapters=[["Chapter one","The first whispers",m=>pre(m)&&wk(m)>=1&&wk(m)<=13],
+  ["Chapter two","The golden months",m=>pre(m)&&wk(m)>=14&&wk(m)<=27],
+  ["Chapter three","The home straight",m=>pre(m)&&wk(m)>=28]];
+ if(p.birthDate)chapters.push(["Chapter four","And then, you",m=>m.date>=p.birthDate]);
+ const now=new Date().toISOString().slice(0,10);
+ const letters=S.d.letters.filter(l=>l.sealedUntil<=now),sealed=S.d.letters.length-letters.length;
+ const el=document.createElement("div");el.id="printbook";
+ el.innerHTML=`<div class="pb-cover"><div class="pb-kicker">Baby Chronicles</div>
+  <h1>The story of<br>${esc(p.babyName)}</h1><p>From the first whisper to today</p>
+  <p class="pb-meta">Written with love by ${esc(p.name)} · ${fmt(pub[0].date)} - ${fmt(pub[pub.length-1].date)} · ${pub.length} moments</p></div>
+  ${chapters.map(([cn,title,test])=>{const ms=pub.filter(test);if(!ms.length)return"";
+   return`<div class="pb-ch"><div class="pb-kicker">${cn}</div><h2>${title}</h2>
+    ${ms.map(m=>`<div class="pb-m"><div class="pb-d">${fmt(m.date)} · ${ic[m.type]||"✏️"}${m.week?" · week "+m.week:""}${m.by?" · "+esc(m.by):""}</div>
+     <h3>${esc(m.title)}</h3>${m.text?`<p>${esc(m.text)}</p>`:""}
+     ${m.dataURL?`<img src="${m.dataURL}">`:""}</div>`).join("")}</div>`}).join("")}
+  ${letters.length?`<div class="pb-ch"><div class="pb-kicker">Letters</div><h2>Letters to ${esc(p.babyName)}</h2>
+   ${letters.map(l=>`<div class="pb-m"><div class="pb-d">${esc(l.from)} · ${fmt(l.createdAt)}</div><h3>${esc(l.title||"A letter for you")}</h3><p>${esc(l.text)}</p></div>`).join("")}
+   ${sealed?`<p class="pb-meta">${sealed} letter${sealed>1?"s are":" is"} still sealed, waiting for their day.</p>`:""}`:""}
+  <div class="pb-end">to be continued, one moment at a time</div>`;
+ document.body.appendChild(el);document.body.classList.add("printing");
+ window.onafterprint=()=>{document.body.classList.remove("printing");el.remove()};
+ window.print()};
 /* ============ CARE PATH ============ */
 RENDER.care=()=>{nav("more");$("#app").innerHTML=`
  <div class="screen" style="padding-top:48px">
@@ -843,6 +943,9 @@ window.exportAll=()=>{const blob=new Blob([JSON.stringify(S.d,null,2)],{type:"ap
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 if(S.d.settings&&S.d.settings.care)document.body.classList.add("care");
 S.d.profile?go('today'):go('ob1');
+if(S.d.profile){notifyDue();
+ document.addEventListener("visibilitychange",()=>{if(!document.hidden)notifyDue()});
+ if(new URLSearchParams(location.search).get("rem"))setTimeout(()=>go('reminders'),400)}
 </script>
 </body>
 </html>
