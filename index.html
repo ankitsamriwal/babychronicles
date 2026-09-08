@@ -202,6 +202,13 @@ body.printing #printbook .pb-end{text-align:center;font-style:italic;color:#8A7E
 .header{display:flex;align-items:center;gap:12px;margin-bottom:4px}
 .header .back{background:var(--paper);border:1px solid var(--line);width:38px;height:38px;border-radius:50%;font-size:1rem;cursor:pointer;flex:none;color:var(--ink)}
 .header h2{font-size:1.35rem;font-weight:500}
+.vxtag{font-size:.66rem;font-weight:600;letter-spacing:.04em;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.vxtag.done{background:var(--sage-soft);color:#4A6B46}
+.vxtag.due{background:var(--terra-soft);color:#9C4A28}
+.vxtag.up{background:var(--cream2);color:var(--ink2)}
+.vxbar{height:6px;background:var(--cream2);border-radius:99px;overflow:hidden;margin-top:10px}
+.vxbar i{display:block;height:100%;background:var(--terra);border-radius:99px;transition:width .4s}
+.gtag{font-size:.62rem;font-weight:600;letter-spacing:.05em;padding:2px 8px;border-radius:999px;background:var(--cream2);color:var(--ink2);margin-left:6px}
 </style>
 </head>
 <body>
@@ -273,6 +280,7 @@ const S={
   d:null,
   load(){try{this.d=JSON.parse(localStorage.getItem(LS))}catch(e){this.d=null}
     if(!this.d)this.d={profile:null,moments:[],letters:[],vaultPin:null,reminders:[],settings:{paused:false,care:false},circle:[],share:{t1:false,t2:false,t3:false,fy:false},seen:{}};
+    this.d.vaccines=this.d.vaccines||{};this.d.essentials=this.d.essentials||{};
   },
   save(){try{localStorage.setItem(LS,JSON.stringify(this.d))}catch(e){try{toast("Storage is nearly full - export everything from More, then delete a few large photos")}catch(_){}}mirrorNotify()},
   reset(){localStorage.removeItem(LS);location.reload()}
@@ -1167,6 +1175,89 @@ RENDER.support=()=>{nav("more");$("#app").innerHTML=`
   <div class="notice"><b>And your own people</b>A midwife, GP, or someone you trust - reaching out is the strong move, always.</div>
   <button class="btn btn-ghost mt" onclick="go('care')">Back</button>
  </div>`};
+/* ============ VACCINATIONS (IAP-ACVIP 2025) ============ */
+const VXSCHED=[
+ {id:"birth",label:"At birth",days:0,vx:["BCG","OPV - birth dose","Hepatitis B - dose 1 (within 24 hours)"]},
+ {id:"w6",label:"6 weeks",days:42,vx:["DTwP / DTaP - dose 1","IPV - dose 1","Hib - dose 1","Hepatitis B - dose 2","Rotavirus - dose 1","PCV - dose 1"]},
+ {id:"w10",label:"10 weeks",days:70,vx:["DTwP / DTaP - dose 2","IPV - dose 2","Hib - dose 2","Hepatitis B - dose 3","Rotavirus - dose 2","PCV - dose 2"]},
+ {id:"w14",label:"14 weeks",days:98,vx:["DTwP / DTaP - dose 3","IPV - dose 3","Hib - dose 3","Hepatitis B - dose 4","Rotavirus - dose 3","PCV - dose 3"]},
+ {id:"m6",label:"6 months",days:183,vx:["Influenza - dose 1"]},
+ {id:"m7",label:"7 months",days:213,vx:["Influenza - dose 2"]},
+ {id:"m6_9",label:"6-9 months",days:244,vx:["Typhoid conjugate vaccine (TCV)"]},
+ {id:"m9",label:"9 months",days:274,vx:["MMR - dose 1"]},
+ {id:"m12",label:"12 months",days:365,vx:["Hepatitis A - dose 1"]}];
+const VXNEXT="After the first birthday - 15 months: MMR-2, Varicella-1, PCV booster. 16-18 months: DTwP/DTaP-B1, Hib-B1, IPV-B1. 18-19 months: Hepatitis A-2, Varicella-2. Influenza repeats every year until age 5.";
+function vxKey(v,i){return v.id+"_"+i}
+function vxCounts(){let t=0,d=0;VXSCHED.forEach(v=>v.vx.forEach((_,i)=>{t++;if(S.d.vaccines[vxKey(v,i)])d++}));return[t,d]}
+RENDER.vaccines=()=>{nav("more");const p=S.d.profile,born=!!p.birthDate,today=new Date().toISOString().slice(0,10);
+ const[total,done]=vxCounts();
+ $("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="go('more')">‹</button><h2 class="serif">Vaccinations</h2></div>
+  <p class="lede">The first-year immunization schedule, ticked and dated - and a report you can hand the pediatrician.</p>
+  ${born?"":'<div class="notice"><b>The schedule starts the day they arrive</b>Welcome them from the Today screen, and every due date below fills itself in.</div>'}
+  ${born?`<div class="card" style="padding:16px">
+   <div style="display:flex;justify-content:space-between;align-items:baseline"><b class="serif" style="font-size:1.02rem">${esc(p.babyName)}'s report</b><small style="color:var(--ink2)">${done} of ${total} given</small></div>
+   <div class="vxbar"><i style="width:${Math.round(done/total*100)}%"></i></div>
+   <button class="btn btn-ghost mt" style="width:100%" onclick="vxReport()">Copy the report</button>
+  </div>`:""}
+  ${VXSCHED.map(v=>{const due=born?addDays(p.birthDate,v.days).toISOString().slice(0,10):null;
+   const dn=v.vx.filter((_,i)=>S.d.vaccines[vxKey(v,i)]).length;
+   const stat=!born?"":dn===v.vx.length?'<span class="vxtag done">Done</span>':due<=today?'<span class="vxtag due">Due now</span>':`<span class="vxtag up">${fmt(due)}</span>`;
+   return `<div class="card" style="padding:6px 16px 10px">
+   <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px"><b class="serif" style="font-size:1.02rem">${v.label}</b>${stat}</div>
+   ${v.vx.map((x,i)=>{const k=vxKey(v,i),g=S.d.vaccines[k];return `
+    <div class="listrow" style="padding:9px 0" onclick="vxToggle('${k}')"><div class="ic">${g?"✅":"⭕"}</div>
+     <div style="${g?"opacity:.55":""}"><b>${x}</b><small>${g?"Given "+fmt(g):born?"Due "+fmt(due):"Tap when given"}</small></div></div>`}).join("")}
+  </div>`}).join("")}
+  <div class="notice"><b>What comes next</b>${VXNEXT}</div>
+  <p style="font-size:.68rem;color:var(--ink2);text-align:center;margin-top:18px;line-height:1.6">Schedule basis: IAP-ACVIP 2025, Indian Academy of Pediatrics.<br>If your pediatrician's plan differs, theirs wins.</p>
+ </div>`};
+window.vxToggle=k=>{if(!S.d.profile.birthDate)return toast("Welcome them first, from the Today screen");
+ const v=S.d.vaccines;if(v[k])delete v[k];else v[k]=new Date().toISOString().slice(0,10);S.save();go('vaccines')};
+window.vxReport=()=>{const p=S.d.profile;let t=`Vaccination record - ${p.babyName} (born ${fmt(p.birthDate)})\nSchedule basis: IAP-ACVIP 2025 (Indian Academy of Pediatrics)\n\n`;
+ VXSCHED.forEach(v=>{t+=v.label+" - due "+fmt(addDays(p.birthDate,v.days))+"\n";
+  v.vx.forEach((x,i)=>{const g=S.d.vaccines[vxKey(v,i)];t+="  "+(g?"[done] ":"[pending] ")+x+(g?" - given "+fmt(g):"")+"\n"})});
+ t+="\n"+VXNEXT;
+ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(()=>toast("Report copied - paste it anywhere")).catch(()=>toast("Copy blocked by the browser"));
+ else toast("Copy not available here")};
+/* ============ ESSENTIALS CHECKLIST ============ */
+const ESSENTIALS=[
+ {t:"Just before birth - the hospital bag",items:[["hb_docs","Hospital file, reports & insurance papers"],["hb_id","ID proofs, cash & cards"],["hb_night","2-3 front-open nighties or nursing gowns"],["hb_bra","Nursing bras & breast pads"],["hb_pads","Maternity pads"],["hb_toil","Toiletries, lip balm, hair ties"],["hb_charge","Phone charger & power bank"],["hb_onesie","2-3 newborn onesies"],["hb_home_b","Going-home outfit for him","boy"],["hb_home_g","Going-home outfit for her","girl"],["hb_swad","2 swaddles or mulmul cloths"],["hb_cap","Cap, mittens & booties"],["hb_blank","A soft baby blanket"],["hb_nap","One small pack of newborn diapers"]]},
+ {t:"During delivery - the partner's pocket",items:[["dl_file","The hospital file, kept with you"],["dl_snack","Snacks, juice & water for the wait"],["dl_cam","Phone charged, storage cleared for the first photos"],["dl_cash","Cash for the counter & parking"],["dl_contacts","Paediatrician & emergency contacts written down"]]},
+ {t:"Right after delivery - the first days",items:[["ad_npil","Nursing pillow"],["ad_ncr","Nipple cream"],["ad_bpads","Extra breast pads"],["ad_diap","Newborn diapers & gentle wipes"],["ad_ones","4-6 onesies & sleepsuits"],["ad_swad","Swaddles & 4-6 burp cloths"],["ad_therm","Digital thermometer"],["ad_nail","Baby nail file or clippers"],["ad_cot","Cot, cradle (palna) or co-sleeper"],["ad_net","Mosquito net for the sleeping spot"]]},
+ {t:"Month 1",items:[["m1_diap","Diapers, size NB-1 - stock up slowly"],["m1_wash","Gentle baby wash & shampoo"],["m1_oil","Massage oil - coconut or almond"],["m1_rash","Diaper rash cream"],["m1_towel","Hooded baby towels"],["m1_lamp","A dim night lamp for 3 a.m. feeds"]]},
+ {t:"Month 2",items:[["m2_diap","Diapers, size 2"],["m2_rattle","Rattles & soft squeakers"],["m2_cards","Black-and-white contrast cards"],["m2_tummy","Tummy-time mat"],["m2_bottle","Bottles, brush & steriliser if using"]]},
+ {t:"Month 3",items:[["m3_gym","Play gym with hanging toys"],["m3_rock","Bouncer or rocker"],["m3_books","Soft cloth books"],["m3_carrier","Baby carrier or sling"],["m3_laundry","Gentle laundry detergent"]]},
+ {t:"Month 4",items:[["m4_teeth","Teethers - the drool begins"],["m4_bibs","Drool bibs, several"],["m4_balls","Soft balls & crinkle toys"],["m4_size","Onesies, size 3-6 months"]]},
+ {t:"Month 5",items:[["m5_mat","A bigger activity mat"],["m5_cup","First sippy cup to practise holding"],["m5_mirror","Baby-safe mirror"],["m5_splash","Splash mat for messy play"]]},
+ {t:"Month 6 - solids begin",items:[["m6_chair","High chair"],["m6_bowls","Small steel bowls & soft-tip spoons"],["m6_bibs","Bibs with a catch pocket"],["m6_sippy","Sippy cup for water"],["m6_food","First foods - ragi, rice cereal, mashed dal"],["m6_mash","Food masher or small blender"]]},
+ {t:"Month 7",items:[["m7_mesh","Mesh feeder for fruits"],["m7_plate","Section plates"],["m7_cup","Sippy with handles"],["m7_locks","Cupboard locks - they scoot soon"],["m7_bath","Bath toys"]]},
+ {t:"Month 8",items:[["m8_knee","Crawling knee pads"],["m8_guard","Corner guards & outlet covers"],["m8_bibs","More bibs than you think"],["m8_cups","Stacking cups"]]},
+ {t:"Month 9",items:[["m9_gate","Stair gate, if you have stairs"],["m9_stand","Pull-to-stand toys"],["m9_shoes","First soft-sole shoes"],["m9_sort","Shape sorter"]]},
+ {t:"Month 10",items:[["m10_walk","Push walker - not the seated kind"],["m10_blocks","Building blocks"],["m10_flap","Board books with flaps"],["m10_snack","Snack catcher cup"]]},
+ {t:"Month 11",items:[["m11_shoes","Walking shoes with grip"],["m11_ride","Ride-on or push-along toy"],["m11_balls","Soft play balls"],["m11_books","More books - always more books"]]},
+ {t:"Month 12 - the big one",items:[["m12_out_b","First-birthday outfit for him","boy"],["m12_out_g","First-birthday outfit for her","girl"],["m12_straw","Straw cups"],["m12_fork","Toddler spoon & fork set"],["m12_box","A memory box for the first-year things"]]}];
+RENDER.essentials=()=>{nav("more");const p=S.d.profile,g=p.gender||"all";
+ const filt=items=>items.filter(it=>!it[2]||g==="all"||it[2]===g);
+ let total=0,done=0;ESSENTIALS.forEach(s=>filt(s.items).forEach(it=>{total++;if(S.d.essentials[it[0]])done++}));
+ $("#app").innerHTML=`
+ <div class="screen" style="padding-top:38px">
+  <div class="header"><button class="back" onclick="go('more')">‹</button><h2 class="serif">Baby essentials</h2></div>
+  <p class="lede">What you'll actually need - the hospital bag, the first days, then month by month. Tick things off as they land.</p>
+  <div style="display:flex;justify-content:space-between;align-items:baseline"><small style="color:var(--ink2)">${done} of ${total} gathered</small>
+  <div class="chips" style="margin-top:0">${[["all","Everyone"],["boy","A boy"],["girl","A girl"]].map(([k,l])=>`<button class="chip ${g===k?'on':''}" style="padding:6px 12px;font-size:.76rem" onclick="essGender('${k}')">${l}</button>`).join("")}</div></div>
+  <div class="vxbar"><i style="width:${total?Math.round(done/total*100):0}%"></i></div>
+  ${ESSENTIALS.map(s=>{const its=filt(s.items);if(!its.length)return "";return `<div class="card" style="padding:6px 16px 10px;margin-top:14px">
+   <div style="padding-top:10px"><b class="serif" style="font-size:1.02rem">${s.t}</b></div>
+   ${its.map(it=>{const chk=S.d.essentials[it[0]];return `
+    <div class="listrow" style="padding:9px 0" onclick="essToggle('${it[0]}')"><div class="ic">${chk?"✅":"⭕"}</div>
+     <div style="${chk?"opacity:.55;text-decoration:line-through":""}"><b>${it[1]}${it[2]?`<span class="gtag">${it[2]==="boy"?"boy":"girl"}</span>`:""}</b></div></div>`}).join("")}
+  </div>`}).join("")}
+  <p style="font-size:.68rem;color:var(--ink2);text-align:center;margin-top:18px;line-height:1.6">A practical list, not an exhaustive one - your paediatrician and your mother<br>will both have opinions, and both are worth hearing.</p>
+ </div>`};
+window.essToggle=id=>{const e=S.d.essentials;if(e[id])delete e[id];else e[id]=true;S.save();go('essentials')};
+window.essGender=g=>{S.d.profile.gender=S.d.profile.gender===g?undefined:g;S.save();go('essentials')};
 /* ============ MORE / SETTINGS ============ */
 RENDER.more=()=>{nav("more");const p=S.d.profile;
  $("#app").innerHTML=`
@@ -1174,11 +1265,13 @@ RENDER.more=()=>{nav("more");const p=S.d.profile;
   <div class="eyebrow">Baby Chronicles</div>
   <h1 class="h-display" style="font-size:1.6rem">${esc(p.name)} &amp; ${esc(p.babyName)}</h1>
   <div class="card">
-   ${[["vault","🔒","Medical vault","PIN-locked, never shared"],["letters","💌","Letters to the baby","Sealed until their day"],["circle","👪","Family circle","Per-chapter, invite-only"],["reminders","🗓","Reminders",S.d.settings.paused?"Paused":"On, gently"],["keepsake","🎞","The keepsakes","Film, book, wall collage, blanket & more"]].map(([k,i,t,s])=>`
+   ${[["vault","🔒","Medical vault","PIN-locked, never shared"],["letters","💌","Letters to the baby","Sealed until their day"],["circle","👪","Family circle","Per-chapter, invite-only"],["reminders","🗓","Reminders",S.d.settings.paused?"Paused":"On, gently"],["keepsake","🎞","The keepsakes","Film, book, wall collage, blanket & more"],["vaccines","💉","Vaccinations","IAP schedule, ticked and dated"],["essentials","🍼","Baby essentials","Hospital bag to first birthday"]].map(([k,i,t,s])=>`
    <div class="listrow" onclick="go('${k}')"><div class="ic">${i}</div><div><b>${t}</b><small>${s}</small></div><span class="go">›</span></div>`).join("")}
   </div>
   <div class="card">
    <div class="listrow" onclick="exportAll()"><div class="ic">📦</div><div><b>Export everything</b><small>All your data, one file, yours</small></div><span class="go">›</span></div>
+   <div class="listrow" onclick="document.getElementById('impFile').click()"><div class="ic">🤲</div><div><b>Restore a backup</b><small>Bring a saved file back onto this device</small></div><span class="go">›</span></div>
+   <input type="file" id="impFile" accept="application/json,.json" style="display:none" onchange="importAll(this)">
    <div class="listrow" onclick="go('care')"><div class="ic">🕊</div><div><b>Something has changed</b><span class="go" style="font-size:.72rem;color:var(--ink2)">gently ›</span></div></div>
    <div class="listrow" onclick="if(confirm('Erase everything on this device?'))S.reset()"><div class="ic">🧺</div><div><b style="color:#A4442C">Erase this story</b><small>Deletes all data on this device</small></div></div>
   </div>
@@ -1186,6 +1279,13 @@ RENDER.more=()=>{nav("more");const p=S.d.profile;
  </div>`};
 window.exportAll=()=>{const blob=new Blob([JSON.stringify(S.d,null,2)],{type:"application/json"});
  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="baby-chronicles-export.json";a.click();toast("Everything, in your hands")};
+window.importAll=inp=>{const f=inp.files[0];if(!f)return;const r=new FileReader();
+ r.onload=()=>{try{const d=JSON.parse(r.result);
+  if(!d||typeof d!=="object"||(!d.profile&&!Array.isArray(d.moments)))throw new Error("bad");
+  if(!confirm("This replaces everything on this device with the backup file. Sure?"))return;
+  S.d=d;S.d.settings=d.settings||{paused:false,care:false};S.d.vaccines=d.vaccines||{};S.d.essentials=d.essentials||{};
+  S.save();location.reload()}catch(e){toast("That file doesn't look like a Baby Chronicles backup")}};
+ r.readAsText(f);inp.value=""};
 /* ============ BOOT ============ */
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 if(S.d.settings&&S.d.settings.care)document.body.classList.add("care");
