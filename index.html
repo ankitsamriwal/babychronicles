@@ -336,7 +336,14 @@ function nav(cur){
   :`<button class="${cur===k?'on':''}" onclick="go('${k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${svg}</svg>${l}</button>`).join("");
  $("#nav").style.display="flex";
 }
-function go(s,...a){document.body.classList.toggle("cinema",s==="story");RENDER[s]?RENDER[s](...a):RENDER.today();window.scrollTo(0,0)}
+function go(s,...a){document.body.classList.toggle("cinema",s==="story");RENDER[s]?RENDER[s](...a):RENDER.today();window.scrollTo(0,0);
+ try{const cur=history.state,st={bc:s,a:a};
+  if(!cur||!cur.bc)history.replaceState(st,"");
+  else if(cur.bc===s&&JSON.stringify(cur.a||[])===JSON.stringify(a))history.replaceState(st,"");
+  else history.pushState(st,"")}catch(e){}}
+window.addEventListener("popstate",e=>{const st=e.state;if(!st||!st.bc)return;
+ document.body.classList.toggle("cinema",st.bc==="story");
+ RENDER[st.bc]?RENDER[st.bc](...(st.a||[])):RENDER.today();window.scrollTo(0,0)});
 const RENDER={};
 /* ============ ONBOARDING ============ */
 const OB={step:1,role:"mother",start:"new"};
@@ -884,7 +891,7 @@ RENDER.keepsake=()=>{nav("more");const p=S.d.profile,n=S.d.moments.filter(m=>!m.
    </div>
   </div>
   <div class="card" style="cursor:pointer;padding:18px" onclick="go('blanket')">
-   <img src="keepsakes/blanket-patchwork.jpg" alt="A keepsake blanket sewn from first-year clothes" style="width:100%;border-radius:14px;aspect-ratio:16/10;object-fit:cover">
+   <img src="keepsakes/blanket-garments.jpg" alt="A keepsake blanket sewn from first-year clothes" style="width:100%;border-radius:14px;aspect-ratio:16/10;object-fit:cover">
    <div style="display:flex;gap:12px;align-items:center;margin-top:14px">
     <div style="flex:1;min-width:0"><b class="serif" style="font-size:1.08rem">The First-Year Blanket</b><br><small style="color:var(--ink2);font-size:.74rem;line-height:1.5">The outgrown onesies, unstitched and sewn again into one blanket.</small></div>
     <span style="color:var(--ink2)">›</span>
@@ -984,12 +991,19 @@ RENDER.blanket=()=>{nav("more");const p=S.d.profile;
   <div class="header"><button class="back" onclick="go('keepsake')">‹</button><h2 class="serif">The first-year blanket</h2></div>
   <p class="lede">Every three months they outgrew another drawer of onesies. Instead of boxing them away, the softest squares are unstitched and sewn again - into one blanket that keeps the whole year.</p>
   <div class="ks-gallery">
+   ${[["keepsakes/blanket-garments.jpg","The Whole Onesie","Every square keeps its little garment whole - the duck onesie, the star sleepsuit, sleeves and all. The year, still wearing itself."],
+      ["keepsakes/blanket-tees.jpg","The Tee Quilt","Each panel is the front of an outfit that mattered - the prints, the slogans, the first-birthday club, sashed in sage."],
+      ["keepsakes/blanket-sleeves.jpg","Sleeves & All","Sleeves crossed, ears on, buttons kept - the close-up corner of the blanket that hugs back."]].map(([src,t,d])=>`
+   <figure class="ks-fig"><img src="${src}" alt="${t} - original sample design"><figcaption><b class="serif">${t}</b><span>${d}</span></figcaption></figure>`).join("")}
+  </div>
+  <p class="lede" style="margin-top:18px">Prefer it quieter? The same year, in calmer palettes.</p>
+  <div class="ks-gallery">
    ${[["keepsakes/blanket-patchwork.jpg","The Patchwork","Twenty squares, one from every outfit that mattered - the coming-home one always gets the center."],
       ["keepsakes/blanket-star.jpg","The North Star","A single star appliquéd from the softest sleepsuit, ringed by everything else."],
       ["keepsakes/blanket-months.jpg","The Twelve Months","Rows that shift in colour the way the year did - sage to terracotta to rose."]].map(([src,t,d])=>`
    <figure class="ks-fig"><img src="${src}" alt="${t} - original sample design"><figcaption><b class="serif">${t}</b><span>${d}</span></figcaption></figure>`).join("")}
   </div>
-  <div class="notice"><b>Original design concepts</b>These three are our own sample designs - the making service is still being stitched together. When it opens: you send the clothes, the blanket comes back.</div>
+  <div class="notice"><b>Original design concepts</b>These are our own sample designs - the making service is still being stitched together. When it opens: you send the clothes, the blanket comes back.</div>
   ${p.birthDate?`<button class="btn btn-terra mt" onclick="blanketReminder()">🧶 Remind me to save the outgrown clothes</button>`
   :`<div class="notice"><b>When they arrive</b>Welcome them from the Today screen, and this becomes a reminder near their first birthday.</div>`}
  </div>`};
