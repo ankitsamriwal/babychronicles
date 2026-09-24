@@ -223,6 +223,7 @@ body.printing #printbook .pb-end{text-align:center;font-style:italic;color:#8A7E
 <script>
 "use strict";
 /* ============ DATA: week-by-week (basis: NHS week-by-week guide & APA 40-week model; see disclaimer in Guidance) ============ */
+const wkInfo=w=>WEEKS[Math.min(Math.max(parseInt(w)||4,4),40)];
 const WEEKS=[
 null,null,null,null,
 ["poppy seed","The cells that will become the baby are dividing and the placenta is beginning to form.","This is usually the week a missed period makes you wonder. A home test can already show a result."],
@@ -291,10 +292,33 @@ const S={
 };
 S.load();
 const $=s=>document.querySelector(s);
-const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const esc=s=>String(s??"").replace(/[&<>"'`]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;","`":"&#96;"}[c]));
+/* Import safety: everything read from a file is cleaned before it touches the app */
+const SAFE_ID=/^[A-Za-z0-9_-]{1,64}$/,SAFE_DATE=/^\d{4}-\d{2}-\d{2}$/,SAFE_IMG=/^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+\/=]+$/;
+const cStr=(v,max=4000)=>typeof v==="string"?v.replace(/[<>`]/g,"").slice(0,max):(typeof v==="number"?String(v):"");
+const cDate=v=>typeof v==="string"&&SAFE_DATE.test(v.slice(0,10))?v.slice(0,10):null;
+const cNum=v=>{const n=parseInt(v);return Number.isFinite(n)&&n>=0&&n<1000?n:null};
+function cDeep(v,depth=0){if(depth>6)return null;
+ if(typeof v==="string")return cStr(v);if(typeof v==="number")return Number.isFinite(v)?v:0;if(typeof v==="boolean"||v===null)return v;
+ if(Array.isArray(v))return v.slice(0,5000).map(x=>cDeep(x,depth+1));
+ if(typeof v==="object"){const o={};for(const k of Object.keys(v).slice(0,2000)){if(/^[\w .:@+-]{1,80}$/.test(k)&&k!=="__proto__"&&k!=="constructor"&&k!=="prototype")o[k]=cDeep(v[k],depth+1)}return o}
+ return null}
+function cMoment(m){if(!m||typeof m!=="object"||!SAFE_ID.test(String(m.id||"")))return null;
+ const date=cDate(m.date);if(!date)return null;
+ const o={id:String(m.id),type:cStr(m.type,20).replace(/[^a-z]/g,"")||"note",date,week:cNum(m.week),title:cStr(m.title,200),vault:m.vault===true,by:cStr(m.by,80)};
+ if(m.text)o.text=cStr(m.text);if(m.clinic)o.clinic=cStr(m.clinic,120);if(m.mood)o.mood=cStr(m.mood,8);
+ if(typeof m.dataURL==="string"&&SAFE_IMG.test(m.dataURL))o.dataURL=m.dataURL;return o}
+function cLetter(l){if(!l||!SAFE_ID.test(String(l.id||"")))return null;
+ return{id:String(l.id),from:cStr(l.from,80),title:cStr(l.title,200),text:cStr(l.text,20000),sealedUntil:cDate(l.sealedUntil)||ymd(),createdAt:cDate(l.createdAt)||ymd()}}
+function cRem(r){if(!r||!SAFE_ID.test(String(r.id||"")))return null;const date=cDate(r.date);if(!date)return null;
+ return{id:String(r.id),title:cStr(r.title,200),date,week:cNum(r.week),done:r.done===true,auto:r.auto===true}}
+const cList=(a,f)=>Array.isArray(a)?a.map(f).filter(Boolean):[];
 const fmt=d=>new Date(d).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
-const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
-const weeksBetween=(a,b)=>Math.floor((new Date(b)-new Date(a))/(7*864e5));
+const pd=d=>typeof d==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(d)?new Date(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10)):new Date(d);
+const ymd=(d=new Date())=>{const x=pd(d);return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0")};
+const addDays=(d,n)=>{const x=pd(d);x.setDate(x.getDate()+n);return x};
+const dayN=d=>{const x=pd(d);return Date.UTC(x.getFullYear(),x.getMonth(),x.getDate())};
+const weeksBetween=(a,b)=>Math.floor((dayN(b)-dayN(a))/(7*864e5));
 function conception(){const p=S.d.profile;return addDays(p.dueDate,-280)}
 function curWeek(){const p=S.d.profile;
   if(p.startPoint==="baby")return null;
@@ -312,13 +336,13 @@ function trimesterOf(w){return w<=13?1:w<=27?2:3}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2400)}
 /* ============ NOTIFICATIONS ============ */
-function dueReminders(){const t=new Date().toISOString().slice(0,10);
+function dueReminders(){const t=ymd();
  return S.d.reminders.filter(r=>!r.done&&r.date<=t)}
 function mirrorNotify(){if(typeof caches==="undefined"||!("Notification"in window)||Notification.permission!=="granted")return;
  try{caches.open("bc-notify").then(c=>c.put("/due-reminders.json",new Response(JSON.stringify({paused:!!(S.d.settings&&S.d.settings.paused),items:dueReminders().map(r=>({id:r.id,title:r.title}))}))))}catch(e){}}
 function notifyDue(){if(!("Notification"in window)||Notification.permission!=="granted"||!S.d.profile)return;
  if(S.d.settings&&S.d.settings.paused)return;
- const t=new Date().toISOString().slice(0,10);let fired=false;
+ const t=ymd();let fired=false;
  dueReminders().forEach(r=>{const k="notif:"+r.id+":"+t;if(S.d.seen[k])return;S.d.seen[k]=1;fired=true;
   const show=reg=>{if(reg&&reg.showNotification)reg.showNotification("Baby Chronicles",{body:r.title,tag:r.id,icon:"icon-192.png",data:{url:"./?rem=1"}});
    else new Notification("Baby Chronicles",{body:r.title,tag:r.id})};
@@ -348,12 +372,14 @@ function nav(cur){
   :`<button class="${cur===k?'on':''}" onclick="go('${k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${svg}</svg>${l}</button>`).join("");
  $("#nav").style.display="flex";
 }
-function go(s,...a){document.body.classList.toggle("cinema",s==="story");RENDER[s]?RENDER[s](...a):RENDER.today();window.scrollTo(0,0);
+function vaultRoute(s,a){if(s==="vault")return true;if(s==="moment"){const m=S.d&&S.d.moments&&S.d.moments.find(x=>x.id===(a||[])[0]);return!!(m&&m.vault)}return false}
+function go(s,...a){if(!vaultRoute(s,a))RENDER._unlocked=false;document.body.classList.toggle("cinema",s==="story");RENDER[s]?RENDER[s](...a):RENDER.today();window.scrollTo(0,0);
  try{const cur=history.state,st={bc:s,a:a};
   if(!cur||!cur.bc)history.replaceState(st,"");
   else if(cur.bc===s&&JSON.stringify(cur.a||[])===JSON.stringify(a))history.replaceState(st,"");
   else history.pushState(st,"")}catch(e){}}
 window.addEventListener("popstate",e=>{const st=e.state;if(!st||!st.bc)return;
+ if(!vaultRoute(st.bc,st.a))RENDER._unlocked=false;
  document.body.classList.toggle("cinema",st.bc==="story");
  RENDER[st.bc]?RENDER[st.bc](...(st.a||[])):RENDER.today();window.scrollTo(0,0)});
 const RENDER={};
@@ -391,7 +417,7 @@ RENDER.ob3=()=>{const baby=OB.start==="baby";$("#app").innerHTML=`
   <div class="header"><button class="back" onclick="go('ob2')">‹</button><h2>${baby?"When was the baby born?":"When is the baby due?"}</h2></div>
   <p class="lede">${baby?"We will build the story backwards from their birthday - and everything new joins it.":"This powers your week-by-week story, guidance and reminders. You can change it any time."}</p>
   <label class="f">${baby?"Date of birth":"Due date"}</label>
-  <input type="date" id="obDate" value="${baby?'':new Date(Date.now()+180*864e5).toISOString().slice(0,10)}">
+  <input type="date" id="obDate" value="${baby?'':ymd(new Date(Date.now()+180*864e5))}">
   ${baby?'<label class="f">Original due date (optional, for the pregnancy arc)</label><input type="date" id="obDue">':''}
   <label class="f">Baby's name or nickname (optional)</label>
   <input type="text" id="obBaby" placeholder="You can decide later">
@@ -416,13 +442,13 @@ RENDER.ob4=()=>{$("#app").innerHTML=`
 window.obFinish=()=>{
  const baby=OB.start==="baby";
  S.d.profile={role:OB.role,name:OB.name||"You",babyName:OB.baby||"little one",startPoint:OB.start,
-   dueDate:baby?(OB.due||addDays(OB.date,-7).toISOString().slice(0,10)):OB.date,
+   dueDate:baby?(OB.due||ymd(addDays(OB.date,-7))):OB.date,
    birthDate:baby?OB.date:null,createdAt:new Date().toISOString()};
  seedReminders();S.save();go('today');toast("Your story has begun 🤍")};
 function seedReminders(){const p=S.d.profile,c=conception();
- const mk=(w,t)=>S.d.reminders.push({id:uid(),title:t,date:addDays(c,(w-1)*7).toISOString().slice(0,10),week:w,done:false,auto:true});
+ const mk=(w,t)=>S.d.reminders.push({id:uid(),title:t,date:ymd(addDays(c,(w-1)*7)),week:w,done:false,auto:true});
  if(stage()!=="post"){mk(8,"Booking appointment with your midwife");mk(12,"Dating scan window opens");mk(20,"Anatomy scan - the big one");mk(28,"Third trimester begins");mk(36,"Birth preferences & hospital bag");mk(40,"Due date - any time now");}
- else S.d.reminders.push({id:uid(),title:"Six-week check for mother and baby",date:addDays(p.birthDate,42).toISOString().slice(0,10),week:null,done:false,auto:true});
+ else S.d.reminders.push({id:uid(),title:"Six-week check for mother and baby",date:ymd(addDays(p.birthDate,42)),week:null,done:false,auto:true});
 }
 /* ============ TODAY ============ */
 RENDER.today=()=>{nav("today");const p=S.d.profile,w=curWeek(),st=stage();
@@ -430,10 +456,10 @@ RENDER.today=()=>{nav("today");const p=S.d.profile,w=curWeek(),st=stage();
  const pm=Math.floor(pw/4.345);
  const ring=(pct)=>{const r=44,c=2*Math.PI*r;return`<div class="ringwrap"><svg class="ring" width="104" height="104"><circle class="bg" cx="52" cy="52" r="${r}" fill="none" stroke-width="7"/><circle class="fg" cx="52" cy="52" r="${r}" fill="none" stroke-width="7" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-pct)}"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><b class="serif" style="font-size:1.35rem">${st==="post"?(pw<9?pw:pm):w}</b><small style="font-size:.55rem;letter-spacing:.12em;color:var(--ink2)">${st==="post"?(pw<9?"WKS OLD":(pm<2?"MO OLD":"MOS OLD")):(st==="due"?"DUE":"OF 40")}</small></div></div>`};
  const heroTitle=st==="post"?`${esc(p.babyName)} is here`:(st==="due"?"Any day now":`Week ${w}`);
- const heroSub=st==="post"?babyAge()+" of being here":(st==="due"?"Full term and choosing their moment":"the size of a "+WEEKS[w][0]);
+ const heroSub=st==="post"?babyAge()+" of being here":(st==="due"?"Full term and choosing their moment":"the size of a "+wkInfo(w)[0]);
  const recent=[...S.d.moments].filter(m=>!m.vault).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,3);
- const nextRem=S.d.reminders.filter(r=>!r.done&&r.date>=new Date().toISOString().slice(0,10)).sort((a,b)=>a.date<b.date?-1:1)[0];
- const g=st==="post"?null:WEEKS[Math.min(w,40)];
+ const nextRem=S.d.reminders.filter(r=>!r.done&&r.date>=ymd()).sort((a,b)=>a.date<b.date?-1:1)[0];
+ const g=st==="post"?null:wkInfo(w);
  const pg=st==="post"?postGuide():null;
  $("#app").innerHTML=`
  <div class="screen" style="padding-top:38px">
@@ -483,14 +509,14 @@ RENDER.arrived=()=>{$("#nav").style.display="none";const p=S.d.profile;$("#app")
   <div class="header"><button class="back" onclick="go('today')">‹</button><h2 class="serif">They're here</h2></div>
   <p class="lede">Congratulations. Mark the day everything changed - and the story turns from waiting to watching.</p>
   <label class="f">Date of birth</label>
-  <input type="date" id="aDate" value="${new Date().toISOString().slice(0,10)}">
+  <input type="date" id="aDate" value="${ymd()}">
   <label class="f">Their name</label>
   <input type="text" id="aName" value="${p.babyName==="little one"?"":esc(p.babyName)}" placeholder="Finally decided?">
   <div class="btn-row"><button class="btn btn-terra" onclick="saveArrived()">Welcome to the world</button></div>
  </div>`};
 window.saveArrived=()=>{const d=$("#aDate").value;if(!d)return toast("Pick the day they arrived");
  const n=$("#aName").value.trim();S.d.profile.birthDate=d;if(n)S.d.profile.babyName=n;
- if(!S.d.reminders.some(r=>r.auto&&r.title.indexOf("Six-week")>-1))S.d.reminders.push({id:uid(),title:"Six-week check for mother and baby",date:addDays(d,42).toISOString().slice(0,10),week:null,done:false,auto:true});
+ if(!S.d.reminders.some(r=>r.auto&&r.title.indexOf("Six-week")>-1))S.d.reminders.push({id:uid(),title:"Six-week check for mother and baby",date:ymd(addDays(d,42)),week:null,done:false,auto:true});
  S.d.moments.push({id:uid(),type:"milestone",date:d,week:curWeek(),title:"First breath",vault:false,by:S.d.profile.name});
  S.save();go('today');toast("Welcome to the world, "+S.d.profile.babyName+" 🤍")};
 /* ============ CAPTURE ============ */
@@ -521,7 +547,7 @@ RENDER.capNote=()=>{$("#nav").style.display="none";$("#app").innerHTML=`
   <label class="f">How are you feeling?</label>
   <div class="moods" id="moodRow">${MOODS.map(m=>`<span class="mood" onclick="pickMood(this,'${m}')">${m}</span>`).join("")}</div>
   <label class="f">When did this happen?</label>
-  <input type="date" id="nDate" value="${new Date().toISOString().slice(0,10)}">
+  <input type="date" id="nDate" value="${ymd()}">
   <div class="btn-row"><button class="btn btn-ghost" onclick="go('capture')">Discard</button><button class="btn btn-terra" onclick="saveNote()">Keep it</button></div>
  </div>`};
 let _mood=null;
@@ -536,7 +562,7 @@ RENDER.capPhoto=type=>{$("#nav").style.display="none";_img=null;$("#app").innerH
   <label class="btn btn-ghost mt" style="display:block;cursor:pointer">Choose photo<input type="file" id="pFile" accept="image/*" style="display:none" onchange="loadImg(this)"></label>
   <div id="pPrev"></div>
   <input type="text" id="pTitle" placeholder="${type==="bump"?"e.g. 24 weeks, feeling round":"Caption this moment"}">
-  <label class="f">Date</label><input type="date" id="pDate" value="${new Date().toISOString().slice(0,10)}">
+  <label class="f">Date</label><input type="date" id="pDate" value="${ymd()}">
   ${type==="bump"?'<div class="notice"><b>The progression strip</b>Bump photos line up week by week on your trimester view - same spot, same light works best.</div>':""}
   <div class="btn-row"><button class="btn btn-ghost" onclick="go('capture')">Discard</button><button class="btn btn-terra" onclick="savePhoto('${type}')">Keep it</button></div>
  </div>`};
@@ -576,14 +602,14 @@ window.loadDoc=(inp,kind)=>{const f=inp.files[0];if(!f)return;
   $("#dForm").style.display="block";if(guess!==kind)toast("Looks like a "+guess+" - filed as "+kind)})};
 window.saveDoc=kind=>{if(!_img)return toast("Choose the document photo first");
  const type=$("#dType .chip.on").textContent;
- S.d.moments.push({id:uid(),type:kind,date:new Date().toISOString().slice(0,10),week:parseInt($("#dWeek").value)||curWeek(),title:type,text:$("#dNotes").value.trim(),clinic:$("#dClinic").value.trim(),dataURL:_img,vault:$("#dVault").classList.contains("on"),by:S.d.profile.name});
+ S.d.moments.push({id:uid(),type:kind,date:ymd(),week:parseInt($("#dWeek").value)||curWeek(),title:type,text:$("#dNotes").value.trim(),clinic:$("#dClinic").value.trim(),dataURL:_img,vault:$("#dVault").classList.contains("on"),by:S.d.profile.name});
  S.save();go($("#dVault").classList.contains("on")?'vault':'timeline');toast("Filed safely")};
 RENDER.capMilestone=()=>{$("#nav").style.display="none";$("#app").innerHTML=`
  <div class="screen" style="padding-top:38px">
   <div class="header"><button class="back" onclick="go('capture')">‹</button><h2>A milestone</h2></div>
   <div class="chips" id="msChips">${MILESTONES.map((m,i)=>`<button class="chip ${i===0?'on':''}" onclick="this.parentNode.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));this.classList.add('on')">${m}</button>`).join("")}</div>
   <label class="f">Or write your own</label><input type="text" id="msCustom" placeholder="e.g. First time the baby kicked to music">
-  <label class="f">Date</label><input type="date" id="msDate" value="${new Date().toISOString().slice(0,10)}">
+  <label class="f">Date</label><input type="date" id="msDate" value="${ymd()}">
   <div class="btn-row"><button class="btn btn-ghost" onclick="go('capture')">Discard</button><button class="btn btn-terra" onclick="saveMilestone()">Mark it</button></div>
  </div>`};
 window.saveMilestone=()=>{const c=$("#msCustom").value.trim();const t=c||$("#msChips .chip.on").textContent;
@@ -607,15 +633,16 @@ RENDER.kicks=()=>{$("#nav").style.display="none";_kick={n:0,t0:Date.now()};$("#a
 window.kickTap=()=>{if(!_kick)return;_kick.n++;$("#kN").textContent=_kick.n};
 window.saveKicks=()=>{if(!_kick||!_kick.n)return toast("Tap each kick first");
  const mins=Math.max(1,Math.round((Date.now()-_kick.t0)/60000));
- S.d.moments.push({id:uid(),type:"kick",date:new Date().toISOString().slice(0,10),week:curWeek(),title:"Kick counting · "+_kick.n+" kicks in "+mins+" min",vault:false,by:S.d.profile.name});
+ S.d.moments.push({id:uid(),type:"kick",date:ymd(),week:curWeek(),title:"Kick counting · "+_kick.n+" kicks in "+mins+" min",vault:false,by:S.d.profile.name});
  clearInterval(_kickT);S.save();_kick=null;go('timeline');toast("Session kept")};
-RENDER.moment=id=>{const m=S.d.moments.find(x=>x.id===id);if(!m)return go('timeline');$("#nav").style.display="none";
+RENDER.moment=id=>{const m=S.d.moments.find(x=>x.id===id);if(!m)return go('timeline');
+ if(m.vault&&!RENDER._unlocked){RENDER._afterUnlock=id;return RENDER.vault()}$("#nav").style.display="none";
  $("#app").innerHTML=`
  <div class="screen" style="padding-top:38px">
   <div class="header"><button class="back" onclick="history.length?go('timeline'):go('today')">‹</button><h2 class="serif" style="font-size:1.2rem">${esc(m.title)}</h2></div>
   <p class="lede" style="margin-top:2px">${fmt(m.date)}${m.week?" · week "+m.week:""}${m.clinic?" · "+esc(m.clinic):""}${m.by?" · by "+esc(m.by):""}</p>
   ${m.dataURL?`<img src="${m.dataURL}" style="width:100%;border-radius:20px;margin-top:14px">`:""}
-  ${m.mood?`<div style="font-size:1.8rem;margin-top:14px">${m.mood}</div>`:""}
+  ${m.mood?`<div style="font-size:1.8rem;margin-top:14px">${esc(m.mood)}</div>`:""}
   ${m.text?`<div class="card"><p style="font-size:.92rem;line-height:1.7;white-space:pre-wrap">${esc(m.text)}</p></div>`:""}
   <div class="listrow" style="margin-top:10px"><div class="ic">🔒</div><div><b>Medical vault</b><small>${m.vault?"Locked - never in the shared story":"Visible in your story"}</small></div><div class="switch ${m.vault?'on':''}" onclick="toggleVault('${m.id}',this)"></div></div>
   <button class="btn btn-ghost mt" style="color:#A4442C" onclick="delMoment('${m.id}')">Delete this moment</button>
@@ -654,7 +681,7 @@ function pinPad(mode){return[1,2,3,4,5,6,7,8,9,"",0,"⌫"].map(n=>n===""?"<span>
 window.pinKey=(k,mode)=>{if(k==="⌫")_pin=_pin.slice(0,-1);else if(_pin.length<4)_pin+=k;
  $("#dots").innerHTML=pinDots();if(_pin.length<4)return;
  if(mode==="set"){S.d.vaultPin=hash(_pin);S.save();RENDER._unlocked=true;_pin="";go('vault');toast("Vault PIN set")}
- else{if(hash(_pin)===S.d.vaultPin){RENDER._unlocked=true;_pin="";go('vault')}
+ else{if(hash(_pin)===S.d.vaultPin){RENDER._unlocked=true;_pin="";const back=RENDER._afterUnlock;RENDER._afterUnlock=null;back&&S.d.moments.some(x=>x.id===back&&x.vault)?go('moment',back):go('vault')}
   else{_pin="";$("#dots").innerHTML=pinDots();$("#dots").classList.add("shake");setTimeout(()=>$("#dots")&&$("#dots").classList.remove("shake"),450);toast("Not quite - try again")}}};
 /* ============ TIMELINE ============ */
 let _scale="Week";
@@ -797,18 +824,18 @@ RENDER.reminders=()=>{nav("more");const rs=[...S.d.reminders].sort((a,b)=>a.date
    <span class="go" onclick="toggleRem('${r.id}')">${r.done?"↺":"✓"}</span></div>`).join("")}
   <label class="f">Add your own</label>
   <input type="text" id="rTitle" placeholder="e.g. Call the hospital about the tour">
-  <input type="date" id="rDate" value="${new Date().toISOString().slice(0,10)}">
+  <input type="date" id="rDate" value="${ymd()}">
   <button class="btn btn-terra mt" onclick="addRem()">Add reminder</button>
  </div>`};
 window.toggleRem=id=>{const r=S.d.reminders.find(x=>x.id===id);r.done=!r.done;S.save();go('reminders')};
 window.addRem=()=>{const t=$("#rTitle").value.trim();if(!t)return toast("Give it a title");
  S.d.reminders.push({id:uid(),title:t,date:$("#rDate").value,done:false,auto:false});S.save();go('reminders');toast("Reminder added")};
 /* ============ LETTERS (partner mode) ============ */
-RENDER.letters=()=>{nav("more");const now=new Date().toISOString().slice(0,10);
+RENDER.letters=()=>{nav("more");const now=ymd();
  $("#app").innerHTML=`
  <div class="screen" style="padding-top:38px">
   <div class="header"><button class="back" onclick="go('more')">‹</button><h2 class="serif">Letters to the baby</h2></div>
-  <p class="lede">Write now, seal, and they open it years from today. Sealed letters cannot be read - not even by you - until their day.</p>
+  <p class="lede">Write now, seal, and the app keeps them closed until their day. Sealed letters stay on this device only - they're sealed, not encrypted.</p>
   ${S.d.letters.map(l=>{const open=l.sealedUntil<=now;return`
    <div class="letter"><div class="wax">${open?"🤍":esc((S.d.profile.babyName[0]||"B").toUpperCase())}</div>
     <b class="serif">${open?esc(l.title||"A letter for you"):"Sealed until "+fmt(l.sealedUntil)}</b>
@@ -818,14 +845,14 @@ RENDER.letters=()=>{nav("more");const now=new Date().toISOString().slice(0,10);
   <input type="text" id="lTitle" placeholder="Title (optional)">
   <textarea id="lText" placeholder="Dear little one..."></textarea>
   <label class="f">Sealed until</label>
-  <select id="lSeal"><option value="${S.d.profile.birthDate||addDays(S.d.profile.dueDate,0).toISOString().slice(0,10)}">The day they arrive</option>
-   <option value="${addDays(S.d.profile.birthDate||S.d.profile.dueDate,365).toISOString().slice(0,10)}">First birthday</option>
-   <option value="${addDays(S.d.profile.birthDate||S.d.profile.dueDate,365*5).toISOString().slice(0,10)}">Fifth birthday</option>
-   <option value="${addDays(S.d.profile.birthDate||S.d.profile.dueDate,365*18).toISOString().slice(0,10)}">Eighteenth birthday</option></select>
+  <select id="lSeal"><option value="${S.d.profile.birthDate||ymd(addDays(S.d.profile.dueDate,0))}">The day they arrive</option>
+   <option value="${ymd(addDays(S.d.profile.birthDate||S.d.profile.dueDate,365))}">First birthday</option>
+   <option value="${ymd(addDays(S.d.profile.birthDate||S.d.profile.dueDate,365*5))}">Fifth birthday</option>
+   <option value="${ymd(addDays(S.d.profile.birthDate||S.d.profile.dueDate,365*18))}">Eighteenth birthday</option></select>
   <button class="btn btn-terra mt" onclick="saveLetter()">Seal the letter</button>
  </div>`};
 window.saveLetter=()=>{const t=$("#lText").value.trim();if(!t)return toast("Write something first");
- S.d.letters.push({id:uid(),from:S.d.profile.name,title:$("#lTitle").value.trim(),text:t,sealedUntil:$("#lSeal").value,createdAt:new Date().toISOString().slice(0,10)});
+ S.d.letters.push({id:uid(),from:S.d.profile.name,title:$("#lTitle").value.trim(),text:t,sealedUntil:$("#lSeal").value,createdAt:ymd()});
  S.save();go('letters');toast("Sealed with love 🤍")};
 /* ============ CIRCLE ============ */
 RENDER.circle=()=>{nav("more");const p=S.d.profile;
@@ -852,7 +879,7 @@ RENDER.circle=()=>{nav("more");const p=S.d.profile;
  </div>`};
 window.addCircle=()=>{const n=$("#cName").value.trim();if(!n)return toast("Who is it?");
  S.d.circle.push({name:n,rel:$("#cRel").value.trim()||"family"});S.save();go('circle');toast(n+" added to the circle")};
-window.shareChronicle=()=>{const p=S.d.profile,now=new Date().toISOString().slice(0,10);
+window.shareChronicle=()=>{const p=S.d.profile,now=ymd();
  const keep=m=>{if(m.vault)return false;const w=m.week||weeksBetween(conception(),m.date)+1;
   const key=p.birthDate&&m.date>=p.birthDate?"fy":w<=13?"t1":w<=27?"t2":"t3";return S.d.share[key]};
  const moments=S.d.moments.filter(keep);
@@ -866,13 +893,15 @@ window.shareChronicle=()=>{const p=S.d.profile,now=new Date().toISOString().slic
  toast(moments.length+" moment"+(moments.length===1?"":"s")+" wrapped up for your partner")};
 window.importChronicle=inp=>{const f=inp.files[0];if(!f)return;const r=new FileReader();
  r.onload=e=>{let d;try{d=JSON.parse(e.target.result)}catch(_){return toast("That file isn't a chronicle")};
-  if(!d||!Array.isArray(d.moments))return toast("That file isn't a chronicle");
-  const from=d.from||"your partner";let nm=0,nl=0,nr=0;
+  if(!d||typeof d!=="object"||!Array.isArray(d.moments))return toast("That file isn't a chronicle");
+  const inM=cList(d.moments,cMoment).map(m=>(m.vault=false,m)),inL=cList(d.letters,cLetter),inR=cList(d.reminders,cRem),skipped=d.moments.length-inM.length;
+  const dfrom=cStr(d.from,80).trim();const from=dfrom||"your partner";let nm=0,nl=0,nr=0;
   const ids=new Set(S.d.moments.map(m=>m.id));
-  d.moments.forEach(m=>{if(m&&m.id&&!ids.has(m.id)){S.d.moments.push(m);nm++}});
-  const lids=new Set(S.d.letters.map(l=>l.id));(d.letters||[]).forEach(l=>{if(l&&l.id&&!lids.has(l.id)){S.d.letters.push(l);nl++}});
-  const rids=new Set(S.d.reminders.map(x=>x.id));(d.reminders||[]).forEach(x=>{if(x&&x.id&&!rids.has(x.id)){S.d.reminders.push(x);nr++}});
-  if(d.from&&d.from!==S.d.profile.name&&!S.d.circle.some(c=>c.name===d.from))S.d.circle.push({name:d.from,rel:"co-author"});
+  inM.forEach(m=>{if(!ids.has(m.id)){S.d.moments.push(m);nm++}});
+  const lids=new Set(S.d.letters.map(l=>l.id));inL.forEach(l=>{if(!lids.has(l.id)){S.d.letters.push(l);nl++}});
+  const rids=new Set(S.d.reminders.map(x=>x.id));inR.forEach(x=>{if(!rids.has(x.id)){S.d.reminders.push(x);nr++}});
+  if(skipped>0)setTimeout(()=>toast(skipped+" item"+(skipped>1?"s":"")+" in that file looked damaged and were skipped"),2600);
+  if(dfrom&&dfrom!==S.d.profile.name&&!S.d.circle.some(c=>c.name===dfrom))S.d.circle.push({name:dfrom,rel:"co-author"});
   S.save();go('circle');
   const parts=[nm?nm+" new moment"+(nm>1?"s":""):"",nl?nl+" letter"+(nl>1?"s":""):"",nr?nr+" reminder"+(nr>1?"s":""):""].filter(Boolean);
   toast(parts.length?"Merged "+from+"'s chronicle - "+parts.join(", "):"Already up to date with "+from+"'s chronicle")};
@@ -1019,7 +1048,7 @@ RENDER.blanket=()=>{nav("more");const p=S.d.profile;
   ${p.birthDate?`<button class="btn btn-terra mt" onclick="blanketReminder()">🧶 Remind me to save the outgrown clothes</button>`
   :`<div class="notice"><b>When they arrive</b>Welcome them from the Today screen, and this becomes a reminder near their first birthday.</div>`}
  </div>`};
-window.blanketReminder=()=>{const d=addDays(S.d.profile.birthDate,335).toISOString().slice(0,10);
+window.blanketReminder=()=>{const d=ymd(addDays(S.d.profile.birthDate,335));
  if(S.d.reminders.some(r=>r.title.toLowerCase().indexOf("blanket")>-1))return toast("Already tucked into your reminders");
  S.d.reminders.push({id:uid(),title:"The first-year blanket - gather the outgrown onesies",date:d,week:null,done:false,auto:true});
  S.save();mirrorNotify();toast("Tucked into reminders for "+fmt(d))};
@@ -1135,7 +1164,7 @@ window.printBook=()=>{const p=S.d.profile;
   ["Chapter two","The golden months",m=>pre(m)&&wk(m)>=14&&wk(m)<=27],
   ["Chapter three","The home straight",m=>pre(m)&&wk(m)>=28]];
  if(p.birthDate)chapters.push(["Chapter four","And then, you",m=>m.date>=p.birthDate]);
- const now=new Date().toISOString().slice(0,10);
+ const now=ymd();
  const letters=S.d.letters.filter(l=>l.sealedUntil<=now),sealed=S.d.letters.length-letters.length;
  const el=document.createElement("div");el.id="printbook";
  el.innerHTML=`<div class="pb-cover"><div class="pb-kicker">Baby Chronicles</div>
@@ -1193,7 +1222,7 @@ const VXSCHED=[
 const VXNEXT="After the first birthday - 15 months: MMR-2, Varicella-1, PCV booster. 16-18 months: DTwP/DTaP-B1, Hib-B1, IPV-B1. 18-19 months: Hepatitis A-2, Varicella-2. Influenza repeats every year until age 5.";
 function vxKey(v,i){return v.id+"_"+i}
 function vxCounts(){let t=0,d=0;VXSCHED.forEach(v=>v.vx.forEach((_,i)=>{t++;if(S.d.vaccines[vxKey(v,i)])d++}));return[t,d]}
-RENDER.vaccines=()=>{nav("more");const p=S.d.profile,born=!!p.birthDate,today=new Date().toISOString().slice(0,10);
+RENDER.vaccines=()=>{nav("more");const p=S.d.profile,born=!!p.birthDate,today=ymd();
  const[total,done]=vxCounts();
  $("#app").innerHTML=`
  <div class="screen" style="padding-top:38px">
@@ -1205,7 +1234,7 @@ RENDER.vaccines=()=>{nav("more");const p=S.d.profile,born=!!p.birthDate,today=ne
    <div class="vxbar"><i style="width:${Math.round(done/total*100)}%"></i></div>
    <button class="btn btn-ghost mt" style="width:100%" onclick="vxReport()">Copy the report</button>
   </div>`:""}
-  ${VXSCHED.map(v=>{const due=born?addDays(p.birthDate,v.days).toISOString().slice(0,10):null;
+  ${VXSCHED.map(v=>{const due=born?ymd(addDays(p.birthDate,v.days)):null;
    const dn=v.vx.filter((_,i)=>S.d.vaccines[vxKey(v,i)]).length;
    const stat=!born?"":dn===v.vx.length?'<span class="vxtag done">Done</span>':due<=today?'<span class="vxtag due">Due now</span>':`<span class="vxtag up">${fmt(due)}</span>`;
    return `<div class="card" style="padding:6px 16px 10px">
@@ -1218,7 +1247,7 @@ RENDER.vaccines=()=>{nav("more");const p=S.d.profile,born=!!p.birthDate,today=ne
   <p style="font-size:.68rem;color:var(--ink2);text-align:center;margin-top:18px;line-height:1.6">Schedule basis: IAP-ACVIP 2025, Indian Academy of Pediatrics.<br>If your pediatrician's plan differs, theirs wins.</p>
  </div>`};
 window.vxToggle=k=>{if(!S.d.profile.birthDate)return toast("Welcome them first, from the Today screen");
- const v=S.d.vaccines;if(v[k])delete v[k];else v[k]=new Date().toISOString().slice(0,10);S.save();go('vaccines')};
+ const v=S.d.vaccines;if(v[k])delete v[k];else v[k]=ymd();S.save();go('vaccines')};
 window.vxReport=()=>{const p=S.d.profile;let t=`Vaccination record - ${p.babyName} (born ${fmt(p.birthDate)})\nSchedule basis: IAP-ACVIP 2025 (Indian Academy of Pediatrics)\n\n`;
  VXSCHED.forEach(v=>{t+=v.label+" - due "+fmt(addDays(p.birthDate,v.days))+"\n";
   v.vx.forEach((x,i)=>{const g=S.d.vaccines[vxKey(v,i)];t+="  "+(g?"[done] ":"[pending] ")+x+(g?" - given "+fmt(g):"")+"\n"})});
@@ -1450,9 +1479,14 @@ window.exportAll=()=>{const blob=new Blob([JSON.stringify(S.d,null,2)],{type:"ap
  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="baby-chronicles-export.json";a.click();toast("Everything, in your hands")};
 window.importAll=inp=>{const f=inp.files[0];if(!f)return;const r=new FileReader();
  r.onload=()=>{try{const d=JSON.parse(r.result);
-  if(!d||typeof d!=="object"||(!d.profile&&!Array.isArray(d.moments)))throw new Error("bad");
+  if(!d||typeof d!=="object"||Array.isArray(d)||!d.profile||typeof d.profile!=="object"||!cDate(d.profile.dueDate||d.profile.birthDate))throw new Error("bad");
   if(!confirm("This replaces everything on this device with the backup file. Sure?"))return;
-  S.d=d;S.d.settings=d.settings||{paused:false,care:false};S.d.vaccines=d.vaccines||{};S.d.essentials=d.essentials||{};S.d.nourish=d.nourish||{tri:0,veg:false,hidden:[],custom:[]};
+  const c=cDeep(d);c.moments=cList(d.moments,cMoment);c.letters=cList(d.letters,cLetter);c.reminders=cList(d.reminders,cRem);
+  c.circle=Array.isArray(d.circle)?d.circle.map(x=>x&&typeof x==="object"?{name:cStr(x.name,80),rel:cStr(x.rel,40)}:null).filter(x=>x&&x.name):[];
+  const p=c.profile;p.dueDate=cDate(d.profile.dueDate);p.birthDate=cDate(d.profile.birthDate);p.name=cStr(d.profile.name,80)||"You";p.babyName=cStr(d.profile.babyName,80)||"little one";
+  p.startPoint=d.profile.startPoint==="baby"?"baby":"new";if(!p.dueDate&&p.birthDate)p.dueDate=p.birthDate;
+  if(typeof d.vaultPin!=="number"&&typeof d.vaultPin!=="string")delete c.vaultPin;
+  S.d=c;S.d.settings=c.settings||{paused:false,care:false};S.d.vaccines=c.vaccines||{};S.d.essentials=c.essentials||{};S.d.nourish=c.nourish||{tri:0,veg:false,hidden:[],custom:[]};
   S.save();location.reload()}catch(e){toast("That file doesn't look like a Baby Chronicles backup")}};
  r.readAsText(f);inp.value=""};
 /* ============ BOOT ============ */
@@ -1464,4 +1498,4 @@ if(S.d.profile){notifyDue();
  if(new URLSearchParams(location.search).get("rem"))setTimeout(()=>go('reminders'),400)}
 </script>
 </body>
-</html>
+  </html>
