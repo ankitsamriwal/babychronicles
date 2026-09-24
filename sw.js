@@ -1,4 +1,4 @@
-const CACHE = 'babychronicles-v8';
+const CACHE = 'babychronicles-v9';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -6,8 +6,21 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE && k !== 'bc-notify').map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
+const isApp = url => { const p = new URL(url).pathname; const base = new URL('./', self.registration.scope).pathname; return p === base || p === base + 'index.html'; };
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+  const sameOrigin = new URL(e.request.url).origin === location.origin;
+  if (sameOrigin && (isApp(e.request.url) || e.request.mode === 'navigate')) {
+    // Network-first for pages so fixes reach people on their next open; cache is the offline fallback.
+    const app = isApp(e.request.url);
+    e.respondWith(
+      fetch(e.request, {cache: 'no-store'}).then(res => {
+        if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(app ? 'index.html' : e.request, copy)); }
+        return res;
+      }).catch(() => caches.match(app ? 'index.html' : e.request, {ignoreSearch: true}).then(hit => hit || caches.match('index.html')))
+    );
+    return;
+  }
   e.respondWith(
     caches.match(e.request, {ignoreSearch: true}).then(hit => hit || fetch(e.request).then(res => {
       if (res.ok && new URL(e.request.url).origin === location.origin) {
